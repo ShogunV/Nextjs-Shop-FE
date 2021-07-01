@@ -1,8 +1,16 @@
 import Head from 'next/head'
 import Image from 'next/image'
+import NextLink from 'next/link'
+import { logOut, useIsLoggedIn } from '../helpers/auth'
+import api from '../helpers/api'
 import styles from '../styles/Home.module.css'
 
 export default function Home() {
+  const isLoggedIn: boolean = useIsLoggedIn();
+  const handleLogOut = () => {
+    api.post('logout').then(res => logOut())
+  }
+
   return (
     <div className={styles.container}>
       <Head>
@@ -19,6 +27,11 @@ export default function Home() {
         <p className={styles.description}>
           Get started by editing{' '}
           <code className={styles.code}>pages/index.js</code>
+          <NextLink href="/login">Login</NextLink>
+          <NextLink href="/register">Register</NextLink>
+          {isLoggedIn &&
+            <button onClick={handleLogOut}>Log out</button>
+          }
         </p>
 
         <div className={styles.grid}>
