@@ -1,0 +1,37 @@
+// prime react css
+@import 'primereact/resources/themes/vela-purple/theme.css';
+@import 'primereact/resources/primereact.min.css';
+@import 'primeicons/primeicons.css';
+
+//primeflex utilities
+@import 'primeflex/src/_variables.scss';
+@import 'primeflex/src/_grid.scss';
+@import 'primeflex/src/_formlayout.scss';
+@import 'primeflex/src/_display.scss';
+@import 'primeflex/src/_text.scss';
+@import 'primeflex/src/flexbox/_flexbox.scss';
+@import 'primeflex/src/_spacing.scss';
+@import 'primeflex/src/_elevation.scss';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  background-color: var(--surface-b);
+  color: var(--text-color);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
