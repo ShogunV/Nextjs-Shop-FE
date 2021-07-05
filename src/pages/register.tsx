@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import NextLink from 'next/link'
+import Link from 'next/link'
 import React, { FC, useState } from 'react'
 import { logIn, logOut } from '../helpers/auth'
 import api from '../helpers/api'
@@ -42,7 +42,7 @@ export default function Register() {
   const RegisterCardFooter: FC = () => {
     return (
       <div className="p-field p-d-flex p-jc-center">
-        <NextLink href="/login">Already have an account?</NextLink>
+        <Link href="/login">Already have an account?</Link>
       </div>
     )
   }

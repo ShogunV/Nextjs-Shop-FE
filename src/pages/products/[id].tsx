@@ -1,8 +1,8 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
-import { logOut, useIsLoggedIn } from '../helpers/auth'
-import api from '../helpers/api'
+import { logOut, useIsLoggedIn } from '../../helpers/auth'
+import api from '../../helpers/api'
 import { GetServerSideProps } from 'next'
 
 type Product = {
@@ -15,19 +15,23 @@ type Product = {
 }
 
 // This gets called on every request
-export const getServerSideProps: GetServerSideProps = async () => {
-  // Fetch data from external API
-  const res = await api.get('/products')
-
-  const products = res.data.products;
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const params  = context.params
+  let product = null
+  if(params) {
+    const {id} = params
+    // Fetch data from external API
+    const res = await api.get(`/products/${id}`)
+    product = res.data.product;
+  }
 
   // Pass data to the page via props
-  return { props: { products } }
+  return { props: { product } }
 }
 
 export default function Home(props: any) {
   const isLoggedIn: boolean = useIsLoggedIn();
-  const products = props.products;
+  const product = props.product;
 
   const handleLogOut = () => {
     api.post('logout').then(res => logOut())
@@ -50,12 +54,11 @@ export default function Home(props: any) {
       </header>
 
       <main>
-        <h1>Products</h1>
+        <h1>Product</h1>
 
-        <div className="p-10 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5">
-          {products.map((product: Product) => (
-            <Link key={product.id} href={`/products/${product.id}`} passHref={true}>
-            <div className="rounded overflow-hidden shadow-lg p-card cursor-pointer">
+        {product ?
+          <div className="p-10 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5">
+            <div key={product.id} className="rounded overflow-hidden shadow-lg p-card">
               <Image className="w-full" src={`http://localhost:8000/storage/${product.image}`} alt="Mountain" width={'100%'} height={'100%'} layout='responsive' />
               <div className="px-6 py-4">
                 <h3 className="font-bold text-xl mb-2">{product.title}</h3>
@@ -71,9 +74,10 @@ export default function Home(props: any) {
                 <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">#winter</span>
               </div>
             </div>
-            </Link>
-          ))}
-        </div>
+          </div>
+          :
+          <p>There is no such product</p>
+        }
 
 
       </main>

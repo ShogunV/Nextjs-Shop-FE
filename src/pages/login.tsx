@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import NextLink from 'next/link'
+import Link from 'next/link'
 import React, { FC, useState } from 'react'
 import api from '../helpers/api'
 import { logIn, logOut } from '../helpers/auth'
@@ -36,7 +36,7 @@ export default function Login() {
   const LoginCardFooter: FC = () => {
     return (
       <div className="p-field p-d-flex p-jc-center">
-        <NextLink href="/register">Don't have an account?</NextLink>
+        <Link href="/register">Don&apos;t have an account?</Link>
       </div>
     )
   }
@@ -67,7 +67,7 @@ export default function Login() {
               {getFormErrorMessage('password')}
             </div>
             <div className="p-field p-d-flex p-jc-center p-mb-5">
-              <NextLink href="/forgot-password">Forgot password?</NextLink>
+              <Link href="/forgot-password">Forgot password?</Link>
             </div>
             <Button label="Log in" iconPos="right" loading={loading} />
           </form>
