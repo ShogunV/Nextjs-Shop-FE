@@ -73,8 +73,8 @@ export default function Home(props: any) {
 
         <div className="row row-cols-2 row-cols-lg-5 g-2 g-lg-3">
           {products.map((product: Product) => {
-            const price = (product.price / 100).toFixed(2);
-            const discountPrice = ((Math.round(product.price * (1 - (product.discount / 100)))) / 100).toFixed(2);
+            const price = product.price.toFixed(2);
+            const discountPrice = Math.round(product.price * (1 - (product.discount  / 100))).toFixed(2);
             return (
               <div key={product.id} className="col-lg-4 col-sm-6">
                 <div className="card">

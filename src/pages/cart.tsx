@@ -8,15 +8,6 @@ import { useCartContext, useGetTotalPrice } from '../context/cart'
 import router from 'next/router'
 import { CartProduct } from '../types'
 
-type Product = {
-  id: number;
-  title: string;
-  description: string;
-  image: string;
-  price: number;
-  discount: number;
-}
-
 // This gets called on every request
 export const getServerSideProps: GetServerSideProps = async () => {
   // Fetch data from external API
@@ -34,11 +25,11 @@ export default function Cart() {
   const totalPrice = useGetTotalPrice()
 
   const getDiscountPrice = (product: CartProduct) => {
-    return (Math.round(product.price * (1 - (product.discount / 100)))/100).toFixed(2);
+    return (Math.round(product.price * (1 - (product.discount / 100)))).toFixed(2);
   }
 
   const getProductsPrice = (product: CartProduct) => {
-    return (Math.round(product.quantity * Math.round(product.price * (1 - (product.discount / 100))))/100).toFixed(2);
+    return (Math.round(product.quantity * Math.round(product.price * (1 - (product.discount / 100))))).toFixed(2);
   }
 
   const handleLogOut = () => {
@@ -105,7 +96,7 @@ export default function Cart() {
                         <button className="btn btn-xs btn-outline-secondary" onClick={() => removeOneFromCart(product)}>-</button>
                         <button className="btn btn-xs btn-danger" onClick={() => removeFromCart(product)}><i className="fa fa-trash-o" aria-hidden="true"></i></button>
                       </td >
-                      <td>{(product.price / 100).toFixed(2)}</td>
+                      <td>{(product.price).toFixed(2)}</td>
                       <td>{product.discount} %</td>
                       <td>{`${discountPrice} €`}</td>
                       <td>{`${productsPrice} €`}</td>
@@ -114,7 +105,7 @@ export default function Cart() {
                 })}
 
                 <tr>
-                  <td colSpan="6">Total Price</td>
+                  <td colSpan={6}>Total Price</td>
                   <td>{`${totalPrice} €`}</td>
                 </tr>
               </tbody>
