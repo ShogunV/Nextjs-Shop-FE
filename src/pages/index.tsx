@@ -1,12 +1,12 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
-import { logOut, useIsLoggedIn } from '../helpers/auth'
 import api from '../helpers/api'
 import { GetServerSideProps } from 'next'
 import React, { useEffect, useState } from 'react'
 import { useCartContext } from '../context/cart'
 import { Product } from '../types'
+import Header from '../components/header'
 
 // This gets called on every request
 export const getServerSideProps: GetServerSideProps = async () => {
@@ -22,17 +22,12 @@ export const getServerSideProps: GetServerSideProps = async () => {
 export default function Home(props: any) {
   const [search, setSearch] = useState('')
   const [products, setProducts] = useState([])
-  const isLoggedIn: boolean = useIsLoggedIn();
   const allProducts = props.products
   const { addToCart, removeOneFromCart } = useCartContext()
 
   useEffect(() => {
     setProducts(allProducts);
   }, [allProducts])
-
-  const handleLogOut = () => {
-    api.post('logout').then(res => logOut())
-  }
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault()
@@ -53,14 +48,7 @@ export default function Home(props: any) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <header>
-        <Link href="/cart">Cart</Link>
-        <Link href="/login">Login</Link>
-        <Link href="/register">Register</Link>
-        {isLoggedIn &&
-          <button onClick={handleLogOut}>Log out</button>
-        }
-      </header>
+      <Header />
 
       <main className="container">
         <h1>Products</h1>

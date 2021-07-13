@@ -1,6 +1,4 @@
 import Head from 'next/head'
-import Link from 'next/link'
-import { logOut, useIsLoggedIn } from '../../helpers/auth'
 import api from '../../helpers/api'
 import { GetServerSideProps } from 'next'
 import React, { useEffect, useRef, useState } from 'react'
@@ -14,6 +12,7 @@ import { FileUpload } from 'primereact/fileupload';
 import { Toolbar } from 'primereact/toolbar';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
+import Header from '../../components/header'
 
 // This gets called on every request
 export const getServerSideProps: GetServerSideProps = async () => {
@@ -28,12 +27,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
 
 export default function Categories(props: any) {
   const [categories, setCategories] = useState([])
-  const isLoggedIn: boolean = useIsLoggedIn();
   const allCategories = props.categories
-
-  const handleLogOut = () => {
-    api.post('logout').then(res => logOut())
-  }
 
   let emptyCategory = {
     id: null,
@@ -181,19 +175,7 @@ export default function Categories(props: any) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <header>
-        <Link href="/cart">Cart</Link>
-        {!isLoggedIn &&
-          <>
-            <Link href="/login">Login</Link>
-            <Link href="/register">Register</Link>
-          </>
-        }
-        {isLoggedIn &&
-          <button onClick={handleLogOut}>Log out</button>
-        }
-
-      </header>
+      <Header />
 
       <main className="container">
         <h1>Categories</h1>
@@ -212,7 +194,7 @@ export default function Categories(props: any) {
               header={header}>
 
               <Column headerStyle={{ width: '3rem' }}></Column>
-              <Column field="title" header="Name" style={{width:'50%'}} sortable></Column>
+              <Column field="title" header="Name" style={{ width: '50%' }} sortable></Column>
               <Column body={actionBodyTemplate}></Column>
             </DataTable>
           </div>

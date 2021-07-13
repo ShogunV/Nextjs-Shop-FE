@@ -1,25 +1,15 @@
 import Head from 'next/head'
 import Image from 'next/image'
-import Link from 'next/link'
-import { logOut, useIsLoggedIn } from '../../helpers/auth'
 import api from '../../helpers/api'
 import { GetServerSideProps } from 'next'
-
-type Product = {
-  id: number;
-  title: string;
-  description: string;
-  image: string;
-  price: number;
-  discount: number;
-}
+import Header from '../../components/header'
 
 // This gets called on every request
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const params  = context.params
+  const params = context.params
   let product = null
-  if(params) {
-    const {id} = params
+  if (params) {
+    const { id } = params
     // Fetch data from external API
     const res = await api.get(`/products/${id}`)
     product = res.data.product;
@@ -30,12 +20,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 }
 
 export default function Home(props: any) {
-  const isLoggedIn: boolean = useIsLoggedIn();
   const product = props.product;
-
-  const handleLogOut = () => {
-    api.post('logout').then(res => logOut())
-  }
 
   return (
     <div className="container mx-auto px-4 flex flex-col h-screen">
@@ -45,13 +30,7 @@ export default function Home(props: any) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <header>
-        <Link href="/login">Login</Link>
-        <Link href="/register">Register</Link>
-        {isLoggedIn &&
-          <button onClick={handleLogOut}>Log out</button>
-        }
-      </header>
+      <Header />
 
       <main>
         <h1>Product</h1>
@@ -78,7 +57,6 @@ export default function Home(props: any) {
           :
           <p>There is no such product</p>
         }
-
 
       </main>
     </div>

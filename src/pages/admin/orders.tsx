@@ -1,11 +1,10 @@
 import Head from 'next/head'
-import Link from 'next/link'
-import { logOut, useIsLoggedIn } from '../../helpers/auth'
 import api from '../../helpers/api'
 import { GetServerSideProps } from 'next'
 import React from 'react'
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { CartProduct } from '../../types'
+import Header from '../../components/header'
 
 // This gets called on every request
 export const getServerSideProps: GetServerSideProps = async () => {
@@ -20,11 +19,6 @@ export const getServerSideProps: GetServerSideProps = async () => {
 
 export default function Orders(props: any) {
   const orders = props.orders
-  const isLoggedIn: boolean = useIsLoggedIn();
-
-  const handleLogOut = () => {
-    api.post('logout').then(res => logOut())
-  }
 
   const getDiscountPrice = (product: CartProduct) => {
     return (Math.round(product.price * (1 - (product.discount / 100)))).toFixed(2);
@@ -42,19 +36,7 @@ export default function Orders(props: any) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <header>
-        <Link href="/cart">Cart</Link>
-        {!isLoggedIn &&
-          <>
-            <Link href="/login">Login</Link>
-            <Link href="/register">Register</Link>
-          </>
-        }
-        {isLoggedIn &&
-          <button onClick={handleLogOut}>Log out</button>
-        }
-
-      </header>
+      <Header />
 
       <main className="container">
         <h1>Orders</h1>

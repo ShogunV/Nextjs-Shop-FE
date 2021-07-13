@@ -1,12 +1,12 @@
 import Head from 'next/head'
 import Link from 'next/link'
-import { logOut, useIsLoggedIn } from '../helpers/auth'
 import api from '../helpers/api'
 import { GetServerSideProps } from 'next'
 import React from 'react'
 import { useCartContext, useGetTotalPrice } from '../context/cart'
 import router from 'next/router'
 import { CartProduct } from '../types'
+import Header from '../components/header'
 
 // This gets called on every request
 export const getServerSideProps: GetServerSideProps = async () => {
@@ -20,7 +20,6 @@ export const getServerSideProps: GetServerSideProps = async () => {
 }
 
 export default function Cart() {
-  const isLoggedIn: boolean = useIsLoggedIn();
   const { cart, addToCart, removeOneFromCart, removeFromCart, clearCart } = useCartContext()
   const totalPrice = useGetTotalPrice()
 
@@ -30,10 +29,6 @@ export default function Cart() {
 
   const getProductsPrice = (product: CartProduct) => {
     return (Math.round(product.quantity * Math.round(product.price * (1 - (product.discount / 100))))).toFixed(2);
-  }
-
-  const handleLogOut = () => {
-    api.post('logout').then(res => logOut())
   }
 
   const handleCheckout = () => {
@@ -50,13 +45,7 @@ export default function Cart() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <header>
-        <Link href="/login">Login</Link>
-        <Link href="/register">Register</Link>
-        {isLoggedIn &&
-          <button onClick={handleLogOut}>Log out</button>
-        }
-      </header>
+      <Header />
 
       <main className="container">
         <h1>Cart</h1>
