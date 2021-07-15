@@ -15,14 +15,23 @@ import { InputText } from 'primereact/inputtext';
 import Header from '../../components/header'
 
 // This gets called on every request
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
   // Fetch data from external API
-  const res = await api.get('/categories')
+  try {
+    const res = await api.get('admin/categories', {
+      headers: context?.req?.headers?.cookie ? { cookie: context.req.headers.cookie } : undefined,
+    })
 
-  const categories = res.data.categories;
+    if (res.data.error) {
+      return { redirect: { destination: '/', permanent: false } }
+    }
 
-  // Pass data to the page via props
-  return { props: { categories } }
+    const categories = res.data.categories;
+    // Pass data to the page via props
+    return { props: { categories } }
+  } catch (err) {
+    return { redirect: { destination: '/', permanent: false } }
+  }
 }
 
 export default function Categories(props: any) {

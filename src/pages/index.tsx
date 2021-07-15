@@ -64,7 +64,7 @@ export default function Home(props: any) {
             const price = product.price.toFixed(2);
             const discountPrice = Math.round(product.price * (1 - (product.discount  / 100))).toFixed(2);
             return (
-              <div key={product.id} className="col-lg-4 col-sm-6">
+              <div key={product.id} className="col-sm-12 col-md-6 col-lg-4">
                 <div className="card">
                   <Link href={`/products/${product.id}`} passHref >
                     <a>

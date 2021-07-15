@@ -86,7 +86,7 @@ export function useGetTotalPrice() {
   const cart = useCart()
   return (cart.reduce((sum, cartItem: CartProduct) => {
     return sum += Math.round(Math.round(cartItem.price * (1 - (cartItem.discount / 100)))) * cartItem.quantity;
-  }, 0)/100).toFixed(2);
+  }, 0)).toFixed(2);
 }
 
 export function useGetTotalQuantity() {

@@ -7,14 +7,23 @@ import { Column } from 'primereact/column'
 import Header from '../../components/header'
 
 // This gets called on every request
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
   // Fetch data from external API
-  const res = await api.get('/admin/users')
+  try {
+    const res = await api.get('admin/users', {
+      headers: context?.req?.headers?.cookie ? { cookie: context.req.headers.cookie } : undefined,
+    })
 
-  const users = res.data.users;
+    if (res.data.error) {
+      return { redirect: { destination: '/', permanent: false } }
+    }
 
-  // Pass data to the page via props
-  return { props: { users } }
+    const users = res.data.users;
+    // Pass data to the page via props
+    return { props: { users } }
+  } catch (err) {
+    return { redirect: { destination: '/', permanent: false } }
+  }
 }
 
 export default function Categories(props: any) {
@@ -31,7 +40,7 @@ export default function Categories(props: any) {
       <Header />
 
       <main className="container">
-        <h1>Categories</h1>
+        <h1>Users</h1>
 
         <div className="card">
           <DataTable value={users} paginator rows={15} header="Responsive">

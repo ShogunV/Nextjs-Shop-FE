@@ -7,14 +7,23 @@ import { CartProduct } from '../../types'
 import Header from '../../components/header'
 
 // This gets called on every request
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
   // Fetch data from external API
-  const res = await api.get('/admin/orders')
+  try {
+    const res = await api.get('admin/orders', {
+      headers: context?.req?.headers?.cookie ? { cookie: context.req.headers.cookie } : undefined,
+    })
 
-  const orders = res.data.orders;
+    if (res.data.error) {
+      return { redirect: { destination: '/', permanent: false } }
+    }
 
-  // Pass data to the page via props
-  return { props: { orders } }
+    const orders = res.data.orders;
+    // Pass data to the page via props
+    return { props: { orders } }
+  } catch (err) {
+    return { redirect: { destination: '/', permanent: false } }
+  }
 }
 
 export default function Orders(props: any) {

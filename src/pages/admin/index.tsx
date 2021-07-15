@@ -19,15 +19,24 @@ import Image from 'next/image'
 import Header from '../../components/header'
 
 // This gets called on every request
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
   // Fetch data from external API
-  const res = await api.get('/products')
+  try {
+    const res = await api.get('admin/products', {
+      headers: context?.req?.headers?.cookie ? { cookie: context.req.headers.cookie } : undefined,
+    })
 
-  const products = res.data.products;
-  const categories = res.data.categories;
+    if (res.data.error) {
+      return { redirect: { destination: '/', permanent: false } }
+    }
 
-  // Pass data to the page via props
-  return { props: { products, categories } }
+    const products = res.data.products;
+    const categories = res.data.categories;
+    // Pass data to the page via props
+    return { props: { products, categories } }
+  } catch (err) {
+    return { redirect: { destination: '/', permanent: false } }
+  }
 }
 
 export default function Products(props: any) {
