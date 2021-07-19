@@ -1,11 +1,15 @@
 import Head from 'next/head'
 import Link from 'next/link'
-import React, { FC, useState } from 'react'
+import React, { FC, useRef, useState } from 'react'
 import api from '../helpers/api'
-import { logIn, logOut } from '../helpers/auth'
+import { logIn } from '../helpers/auth'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
+import { Card } from 'primereact/card'
+import { InputText } from 'primereact/inputtext'
+import { Button } from 'primereact/button'
+import { Toast } from 'primereact/toast'
 
 type LoginData = {
   email: string;
@@ -19,6 +23,7 @@ const schema = yup.object().shape({
 
 export default function Login() {
   const [loading, setLoading] = useState(false)
+  const toast = useRef<Toast>(null);
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema)
   })
@@ -26,7 +31,21 @@ export default function Login() {
   const onSubmit = (data: LoginData) => {
     setLoading(true)
     api.get('csrf-cookie').then(() => {
-      api.post('login', data).then(res => logIn()).catch(e => logOut())
+      api.post('login', data).then((res): any => {
+        setLoading(false)
+        if(res.data.error){
+          return toast.current?.show({severity: 'error', summary: 'Error Message', detail: res.data.data})
+        }
+        return logIn(res.data.user)
+      }).catch(e => {
+        setLoading(false)
+        if(e.response.data.errors){
+          const errors = Object.keys(e.response.data.errors).map(key => e.response.data.errors[key]).flat()
+          return errors.forEach(error => toast.current?.show({severity: 'error', summary: 'Error Message', detail: error}))
+        }
+
+        return toast.current?.show({severity: 'error', summary: 'Error Message', detail: 'Something went wrong!'})
+      })
     })
   }
 
@@ -39,7 +58,7 @@ export default function Login() {
   }
 
   const getFormErrorMessage = (name: string) => {
-    return errors[name] && <div className="invalid-tooltip">{errors[name].message}</div>
+    return errors[name] && <small className="p-error">{errors[name].message}</small>
   };
 
   return (
@@ -50,31 +69,28 @@ export default function Login() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="container d-flex flex-column justify-content-center align-content-center vh-100 w-sm-100 w-50">
-        <form onSubmit={handleSubmit(onSubmit)} className="card border-dark mb-3">
-          <div className="card-header">Login</div>
-          <div className="card-body text-dark">
-            <div className="mb-3">
-              <label htmlFor="email" className="form-label">Email address</label>
-              <input type="email" className="form-control" id="email" {...register("email")}  />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="password" className="form-label">Password</label>
-              <input type="password" className="form-control" id="password" {...register("password")}/>
-            </div>
-            <div className="mb-3 d-flex justify-content-center">
-              <Link href="/forgot-password">Forgot password?</Link>
-            </div>
-
-            <div className="mb-3 d-flex justify-content-center">
-              <button className="btn btn-secondary" type="submit">Log in</button>
-            </div>
-
-            <div className="mb-3 d-flex justify-content-center">
-              <Link href="/register">Don&apos;t have an account?</Link>
-            </div>
-          </div>
-        </form>
+      <main>
+        <div className="row justify-content-center align-items-center vh-100 vw-100">
+          <Card title='Log in' footer={LoginCardFooter} className="col-12 col-md-9 col-lg-6 col-xl-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="p-fluid">
+              <div className="p-field">
+                <label htmlFor="email">Email address</label>
+                <InputText id="email" type="email" {...register("email")} />
+                {getFormErrorMessage('email')}
+              </div>
+              <div className="p-field">
+                <label htmlFor="password">Password</label>
+                <InputText id="password" type="password" {...register("password")} />
+                {getFormErrorMessage('password')}
+              </div>
+              <div className="p-field p-d-flex p-jc-center">
+                <Link href="/forgot-password">Forgot password?</Link>
+              </div>
+              <Button label="Login" iconPos="right" loading={loading} />
+            </form>
+          </Card>
+        </div>
+        <Toast ref={toast} />
       </main>
     </div>
   )

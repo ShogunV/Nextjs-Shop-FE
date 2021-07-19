@@ -8,15 +8,16 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
-import { FileUpload } from 'primereact/fileupload';
+import { FileUpload, FileUploadSelectParams } from 'primereact/fileupload';
 import { Toolbar } from 'primereact/toolbar';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { RadioButton } from 'primereact/radiobutton';
-import { InputNumber } from 'primereact/inputnumber';
+import { RadioButton, RadioButtonChangeParams } from 'primereact/radiobutton';
+import { InputNumber, InputNumberValueChangeParams } from 'primereact/inputnumber';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import Image from 'next/image'
 import Header from '../../components/header'
+import { CartProduct, ProductCategory } from '../../types'
 
 // This gets called on every request
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -43,12 +44,12 @@ export default function Products(props: any) {
   const [products, setProducts] = useState([])
   const allProducts = props.products
   const allCategories = props.categories
-  const fileUploadRef = useRef(null)
+  const fileUploadRef = useRef<HTMLInputElement>(null)
 
-  let emptyProduct = {
-    id: null,
+  let emptyProduct: CartProduct = {
+    id: 0,
     title: '',
-    image: null,
+    image: '',
     description: '',
     category: '',
     category_id: 0,
@@ -63,15 +64,15 @@ export default function Products(props: any) {
   const [selectedProducts, setSelectedProducts] = useState(null);
   const [newImage, setNewImage] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [globalFilter, setGlobalFilter] = useState(null);
-  const toast = useRef(null);
-  const dt = useRef(null);
+  const [globalFilter, setGlobalFilter] = useState('');
+  const toast = useRef<Toast>(null);
+  const dt = useRef<DataTable>(null);
 
   useEffect(() => {
     setProducts(allProducts);
   }, [allProducts]);
 
-  const formatCurrency = (value) => {
+  const formatCurrency = (value: number) => {
     return value.toLocaleString('en-US', { style: 'currency', currency: 'EUR' });
   }
 
@@ -97,21 +98,23 @@ export default function Products(props: any) {
       let _product = { ...product };
       if (product.id) {
         const data = new FormData()
-        if (newImage && fileUploadRef.current && fileUploadRef.current.files && fileUploadRef.current.files.length > 0) {
-          _product.image = fileUploadRef.current.files[0];
-          data.append('image', _product.image);
+        if (fileUploadRef !== null){
+          if (newImage && fileUploadRef.current && fileUploadRef.current.files && fileUploadRef.current.files.length > 0) {
+            _product.image = fileUploadRef.current.files[0];
+            data.append('image', _product.image);
+          }
         }
-        data.append('id', product.id);
-        data.append('price', _product.price);
+        data.append('id', String(product.id));
+        data.append('price', String(_product.price));
         data.append('title', _product.title);
-        data.append('category_id', _product.category_id);
-        data.append('discount', _product.discount);
+        data.append('category_id', String(_product.category_id));
+        data.append('discount', String(_product.discount));
         data.append('description', _product.description);
         data.append('_method', 'put');
         api.post(`/admin/products/${product.id}`, data).then(res => {
-          setProducts(res.data.data)
+          setProducts(res.data.products)
+          toast.current?.show({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
         }).catch(e => console.log(e))
-        toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
       }
       else {
         const data = new FormData()
@@ -119,15 +122,15 @@ export default function Products(props: any) {
           _product.image = fileUploadRef.current.files[0];
           data.append('image', _product.image);
         }
-        data.append('price', _product.price);
+        data.append('price', String(_product.price));
         data.append('title', _product.title);
-        data.append('category_id', _product.category_id);
-        data.append('discount', _product.discount);
+        data.append('category_id', String(_product.category_id));
+        data.append('discount', String(_product.discount));
         data.append('description', _product.description);
         api.post('/admin/products', data).then(res => {
-          setProducts(res.data.data)
+          setProducts(res.data.products)
+          toast.current?.show({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 });
         }).catch(e => console.log(e))
-        toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 });
       }
 
       setProductDialog(false);
@@ -135,48 +138,46 @@ export default function Products(props: any) {
     }
   }
 
-  const editProduct = (product) => {
+  const editProduct = (product: CartProduct) => {
     setProduct({ ...product });
     setProductDialog(true);
   }
 
-  const confirmDeleteProduct = (product) => {
+  const confirmDeleteProduct = (product: CartProduct) => {
     setProduct(product);
     setDeleteProductDialog(true);
   }
 
   const deleteProduct = () => {
     api.delete(`admin/products/${product.id}`).then(res => {
-      setProducts(res.data.data)
+      setProducts(res.data.products)
     }).catch(e => console.log(e))
 
     setDeleteProductDialog(false);
     setProduct(emptyProduct);
-    toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000 });
+    toast.current?.show({ severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000 });
   }
 
   const exportCSV = () => {
-    dt.current.exportCSV();
+    dt.current?.exportCSV({ selectionOnly: false });
   }
 
-  const onCategoryChange = (e) => {
+  const onCategoryChange = (e: RadioButtonChangeParams) => {
     let _product = { ...product };
-    _product['category_id'] = e.value;
+    _product['category_id'] = +e.target.value;
     setProduct(_product);
   }
 
-  const onInputChange = (e, name) => {
+  const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, name: string) => {
     const val = (e.target && e.target.value) || '';
-    let _product = { ...product };
-    _product[`${name}`] = val;
+    const _product = { ...product, [name]: val };
 
     setProduct(_product);
   }
 
-  const onInputNumberChange = (e, name) => {
-    const val = e.value || 0;
-    let _product = { ...product };
-    _product[`${name}`] = val;
+  const onInputNumberChange = (e: InputNumberValueChangeParams, name: string) => {
+    const val = (e.target && e.target.value) || 0;
+    const _product = { ...product, [name]: val };
 
     setProduct(_product);
   }
@@ -192,25 +193,25 @@ export default function Products(props: any) {
   const rightToolbarTemplate = () => {
     return (
       <React.Fragment>
-        <FileUpload mode="basic" accept="image/*" maxFileSize={1000000} label="Import" chooseLabel="Import" className="p-mr-2 p-d-inline-block" />
+        <FileUpload mode="basic" accept="image/*" maxFileSize={1000000} chooseLabel="Import" className="p-mr-2 p-d-inline-block" />
         <Button label="Export" icon="pi pi-upload" className="p-button-help" onClick={exportCSV} />
       </React.Fragment>
     )
   }
 
-  const imageBodyTemplate = (rowData) => {
-    return <Image src={`http://localhost:8000/storage/${rowData.image ? rowData.image : 'images/No_image_available.png'}`} width={120} height={120} layout='responsive' onError={(e) => e.target.src = 'https://www.primefaces.org/wp-content/uploads/2020/05/placeholder.png'} alt={rowData.image} className="product-image" />
+  const imageBodyTemplate = (rowData: CartProduct) => {
+    return <Image src={`http://localhost:8000/storage/${rowData.image ? rowData.image : 'images/No_image_available.png'}`} width={120} height={120} layout='responsive' alt={rowData.title} className="product-image" />
   }
 
-  const priceBodyTemplate = (rowData) => {
+  const priceBodyTemplate = (rowData: CartProduct) => {
     return formatCurrency(rowData.price);
   }
 
-  const discountBodyTemplate = (rowData) => {
+  const discountBodyTemplate = (rowData: CartProduct) => {
     return rowData.discount + '%';
   }
 
-  const actionBodyTemplate = (rowData) => {
+  const actionBodyTemplate = (rowData: CartProduct) => {
     return (
       <React.Fragment>
         <Button icon="pi pi-pencil" className="p-button-rounded p-button-success p-mr-2" onClick={() => editProduct(rowData)} />
@@ -224,7 +225,7 @@ export default function Products(props: any) {
       <h5 className="p-m-0">Manage Products</h5>
       <span className="p-input-icon-left">
         <i className="pi pi-search" />
-        <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Search..." />
+        <InputText type="search" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setGlobalFilter(e.target.value)} placeholder="Search..." />
       </span>
     </div>
   );
@@ -240,11 +241,9 @@ export default function Products(props: any) {
       <Button label="Yes" icon="pi pi-check" className="p-button-text" onClick={deleteProduct} />
     </React.Fragment>
   );
-  const onUpload = () => {
+  const onUpload = (e: FileUploadSelectParams) => {
     setNewImage(true)
   }
-
-
 
   return (
     <div>
@@ -297,7 +296,7 @@ export default function Products(props: any) {
             <div className="p-field">
               <label className="p-mb-3">Category</label>
               <div className="p-formgrid p-grid">
-                {allCategories.map(category => (
+                {allCategories.map((category: ProductCategory) => (
                   <div key={category.id} className="p-field-radiobutton p-col-6">
                     <RadioButton inputId={`category-${category.id}`} name="category" value={category.id} onChange={onCategoryChange} checked={product.category_id === category.id} />
                     <label htmlFor={`category-${category.id}`}>{category.title}</label>
@@ -307,9 +306,9 @@ export default function Products(props: any) {
               {submitted && !product.category_id && <small className="p-error">Category is required.</small>}
             </div>
 
-            <FileUpload ref={fileUploadRef} name="image" url={`http://localhost:8000/storage/`} mode="basic" />
+            <FileUpload name="image" url={`http://localhost:8000/storage/`} onSelect={onUpload} mode="basic" />
 
-            <FileUpload name="image" url={`http://localhost:8000/storage/`} onUpload={onUpload} accept="image/*" maxFileSize={1000000}
+            <FileUpload name="image" url={`http://localhost:8000/storage/`} onSelect={onUpload} uploadOptions={{className: 'd-none'}} accept="image/*" maxFileSize={1000000}
               emptyTemplate={<p className="p-m-0">Drag and drop files to here to upload.</p>} />
 
             <div className="p-formgrid p-grid">
@@ -332,8 +331,6 @@ export default function Products(props: any) {
             </div>
           </Dialog>
         </div>
-
-
       </main>
     </div>
   )

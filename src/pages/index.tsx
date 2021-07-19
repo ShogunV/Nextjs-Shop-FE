@@ -9,9 +9,10 @@ import { Product } from '../types'
 import Header from '../components/header'
 
 // This gets called on every request
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { category } = context.query
   // Fetch data from external API
-  const res = await api.get('/products')
+  const res = await api.get('/products', { params: { category } })
 
   const products = res.data.products;
 
@@ -23,7 +24,7 @@ export default function Home(props: any) {
   const [search, setSearch] = useState('')
   const [products, setProducts] = useState([])
   const allProducts = props.products
-  const { addToCart, removeOneFromCart } = useCartContext()
+  const { addToCart } = useCartContext()
 
   useEffect(() => {
     setProducts(allProducts);
@@ -62,7 +63,7 @@ export default function Home(props: any) {
         <div className="row row-cols-2 row-cols-lg-5 g-2 g-lg-3">
           {products.map((product: Product) => {
             const price = product.price.toFixed(2);
-            const discountPrice = Math.round(product.price * (1 - (product.discount  / 100))).toFixed(2);
+            const discountPrice = Math.round(product.price * (1 - (product.discount / 100))).toFixed(2);
             return (
               <div key={product.id} className="col-sm-12 col-md-6 col-lg-4">
                 <div className="card">
@@ -74,20 +75,21 @@ export default function Home(props: any) {
                   <div className="card-body">
                     <Link href={`/products/${product.id}`} passHref ><h3 role="button">{product.title}</h3></Link>
                     <p>{product.description.split('\n')[0]}</p>
-                    {product.discount ?
-                      <>
-                        <div className="ribbon"><span>{-product.discount}%</span></div>
+                    <div className="d-flex justify-content-between align-items-end">
+                      {product.discount ?
+                        <>
+                          <div className="ribbon"><span>{-product.discount}%</span></div>
+                          <div className="price pull-left">
+                            <div className="full-price fs-6"><s>{`${price} €`}</s></div>
+                            <div className="discount-price fs-5 fw-bold">{`${discountPrice} €`}</div>
+                          </div>
+                        </> :
                         <div className="price pull-left">
-                          <div className="full-price fs-6"><s>{`${price} €`}</s></div>
                           <div className="discount-price fs-5 fw-bold">{`${discountPrice} €`}</div>
                         </div>
-                      </> :
-                      <div className="price pull-left">
-                        <div className="discount-price fs-5 fw-bold">{`${discountPrice} €`}</div>
-                      </div>
-                    }
-                    <button type="button" className="btn btn-success btn-lg pull-right cart" onClick={() => addToCart(product)}><i className="fa fa-shopping-cart" aria-hidden="true"></i><span className="glyphicon glyphicon-shopping-cart"></span>Add to cart</button>
-                    <button type="button" className="btn btn-success btn-lg pull-right cart" onClick={() => removeOneFromCart(product)}><i className="fa fa-shopping-cart" aria-hidden="true"></i><span className="glyphicon glyphicon-shopping-cart"></span>Remove from cart</button>
+                      }
+                      <button type="button" className="btn btn-success pull-right cart" onClick={() => addToCart(product)}><i className="fa fa-shopping-cart" aria-hidden="true"></i><span className="glyphicon glyphicon-shopping-cart"></span>Add to cart</button>
+                    </div>
                   </div>
                 </div>
               </div>

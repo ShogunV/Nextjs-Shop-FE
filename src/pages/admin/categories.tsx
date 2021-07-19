@@ -13,6 +13,7 @@ import { Toolbar } from 'primereact/toolbar';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import Header from '../../components/header'
+import { CartProduct, ProductCategory } from '../../types';
 
 // This gets called on every request
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -38,8 +39,8 @@ export default function Categories(props: any) {
   const [categories, setCategories] = useState([])
   const allCategories = props.categories
 
-  let emptyCategory = {
-    id: null,
+  let emptyCategory: ProductCategory = {
+    id: 0,
     title: '',
   };
 
@@ -48,9 +49,9 @@ export default function Categories(props: any) {
   const [category, setCategory] = useState(emptyCategory);
   const [selectedCategories, setSelectedCategories] = useState(null);
   const [submitted, setSubmitted] = useState(false);
-  const [globalFilter, setGlobalFilter] = useState(null);
-  const toast = useRef(null);
-  const dt = useRef(null);
+  const [globalFilter, setGlobalFilter] = useState('');
+  const toast = useRef<Toast>(null);
+  const dt = useRef<DataTable>(null);
 
   useEffect(() => {
     setCategories(allCategories);
@@ -80,13 +81,13 @@ export default function Categories(props: any) {
         api.post(`/admin/categories/${category.id}`, _category).then(res => {
           setCategories(res.data.categories)
         }).catch(e => console.log(e))
-        toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Category Updated', life: 3000 });
+        toast.current?.show({ severity: 'success', summary: 'Successful', detail: 'Category Updated', life: 3000 });
       }
       else {
         api.post('/admin/categories', _category).then(res => {
           setCategories(res.data.categories)
         }).catch(e => console.log(e))
-        toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Category Created', life: 3000 });
+        toast.current?.show({ severity: 'success', summary: 'Successful', detail: 'Category Created', life: 3000 });
       }
 
       setCategoryDialog(false);
@@ -94,12 +95,12 @@ export default function Categories(props: any) {
     }
   }
 
-  const editCategory = (category) => {
+  const editCategory = (category: ProductCategory) => {
     setCategory({ ...category });
     setCategoryDialog(true);
   }
 
-  const confirmDeleteCategory = (category) => {
+  const confirmDeleteCategory = (category: ProductCategory) => {
     setCategory(category);
     setDeleteCategoryDialog(true);
   }
@@ -111,17 +112,16 @@ export default function Categories(props: any) {
 
     setDeleteCategoryDialog(false);
     setCategory(emptyCategory);
-    toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Category Deleted', life: 3000 });
+    toast.current?.show({ severity: 'success', summary: 'Successful', detail: 'Category Deleted', life: 3000 });
   }
 
   const exportCSV = () => {
-    dt.current.exportCSV();
+    dt.current?.exportCSV({ selectionOnly: false });
   }
 
-  const onInputChange = (e, name) => {
+  const onInputChange = (e: React.ChangeEvent<HTMLInputElement>, name: string) => {
     const val = (e.target && e.target.value) || '';
-    let _category = { ...category };
-    _category[`${name}`] = val;
+    const _category = { ...category, [name]: val };
 
     setCategory(_category);
   }
@@ -137,13 +137,13 @@ export default function Categories(props: any) {
   const rightToolbarTemplate = () => {
     return (
       <React.Fragment>
-        <FileUpload mode="basic" accept="image/*" maxFileSize={1000000} label="Import" chooseLabel="Import" className="p-mr-2 p-d-inline-block" />
+        <FileUpload mode="basic" accept="image/*" maxFileSize={1000000} chooseLabel="Import" className="p-mr-2 p-d-inline-block" />
         <Button label="Export" icon="pi pi-upload" className="p-button-help" onClick={exportCSV} />
       </React.Fragment>
     )
   }
 
-  const actionBodyTemplate = (rowData) => {
+  const actionBodyTemplate = (rowData: CartProduct) => {
     return (
       <React.Fragment>
         <Button icon="pi pi-pencil" className="p-button-rounded p-button-success p-mr-2" onClick={() => editCategory(rowData)} />
@@ -157,7 +157,7 @@ export default function Categories(props: any) {
       <h5 className="p-m-0">Manage Categories</h5>
       <span className="p-input-icon-left">
         <i className="pi pi-search" />
-        <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Search..." />
+        <InputText type="search" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setGlobalFilter(e.target.value)} placeholder="Search..." />
       </span>
     </div>
   );
@@ -173,8 +173,6 @@ export default function Categories(props: any) {
       <Button label="Yes" icon="pi pi-check" className="p-button-text" onClick={deleteCategory} />
     </React.Fragment>
   );
-
-
 
   return (
     <div>
@@ -194,7 +192,6 @@ export default function Categories(props: any) {
 
           <div className="card">
             <Toolbar className="p-mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
-
             <DataTable ref={dt} value={categories} selection={selectedCategories} onSelectionChange={(e) => setSelectedCategories(e.value)}
               dataKey="id" paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
               paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
@@ -222,10 +219,7 @@ export default function Categories(props: any) {
               {category && <span>Are you sure you want to delete <b>{category.title}</b>?</span>}
             </div>
           </Dialog>
-
         </div>
-
-
       </main>
     </div>
   )

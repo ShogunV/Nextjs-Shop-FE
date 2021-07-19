@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import api from '../helpers/api'
 import { InputText } from 'primereact/inputtext'
 import { Card } from 'primereact/card';
@@ -7,6 +7,7 @@ import { Button } from 'primereact/button';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
+import { Toast } from 'primereact/toast';
 
 type ForgotPasswordData = {
   email: string;
@@ -18,13 +19,28 @@ const schema = yup.object().shape({
 
 export default function Login() {
   const [loading, setLoading] = useState(false)
+  const toast = useRef<Toast>(null);
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema)
   })
 
   const onSubmit = (data: ForgotPasswordData) => {
     setLoading(true)
-    api.post('forgot-password', data).then(res => console.log('res : ' + JSON.stringify(res))).catch(e => console.log('e : ' + e))
+    api.post('forgot-password', data).then(res => {
+      setLoading(false)
+      if(res.data.error){
+        return toast.current?.show({severity: 'error', summary: 'Error Message', detail: res.data.data})
+      }
+      return toast.current?.show({severity: 'success', summary: 'Success Message', detail: res.data.data})
+    }).catch(e => {
+      setLoading(false)
+      if(e.response.data.errors){
+        const errors = Object.keys(e.response.data.errors).map(key => e.response.data.errors[key]).flat()
+        return errors.forEach(error => toast.current?.show({severity: 'error', summary: 'Error Message', detail: error}))
+      }
+
+      return toast.current?.show({severity: 'error', summary: 'Error Message', detail: 'Something went wrong!'})
+    })
   }
 
   const getFormErrorMessage = (name: string) => {
@@ -39,17 +55,20 @@ export default function Login() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="mx-auto md:w-96">
-        <Card title='Forgot password'>
-          <form onSubmit={handleSubmit(onSubmit)} className="p-fluid">
-            <div className="p-field p-mb-5">
-              <label htmlFor="email">Email</label>
-              <InputText id="email" type="email" {...register("email")} />
-              {getFormErrorMessage('email')}
-            </div>
-            <Button label="Send" iconPos="right" loading={loading} />
-          </form>
-        </Card>
+      <main>
+        <div className="row justify-content-center align-items-center vh-100">
+          <Card title='Forgot password' className="col-12 col-md-9 col-lg-6 col-xl-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="p-fluid">
+              <div className="p-field p-mb-5">
+                <label htmlFor="email">Email</label>
+                <InputText id="email" type="email" {...register("email")} />
+                {getFormErrorMessage('email')}
+              </div>
+              <Button label="Send" iconPos="right" loading={loading} />
+            </form>
+          </Card>
+        </div>
+        <Toast ref={toast} />
       </main>
     </div>
   )

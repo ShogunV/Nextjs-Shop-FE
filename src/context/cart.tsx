@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { createContext, useContext } from 'react';
-import { Cart, CartProduct } from '../types';
+import { Cart, CartProduct, Product } from '../types';
 
 type CartContent = {
   cart: Array<CartProduct>,
-  addToCart: (product: CartProduct) => void,
+  addToCart: (product: Product) => void,
   removeOneFromCart: (product: CartProduct) => void,
   removeFromCart: (product: CartProduct) => void,
   clearCart: () => void
@@ -25,7 +25,7 @@ const CartContext = createContext<CartContent>({
 export function CartProvider({ children }: Props) {
   const [cart, setCart] = useState<Cart>([])
 
-  const addToCart = (product: CartProduct) => {
+  const addToCart = (product: Product) => {
     const newCart: Cart = [...cart]
     const productInCart = newCart.find(cartProduct => cartProduct.id === product.id)
     if (productInCart) {

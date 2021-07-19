@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import Link from 'next/link'
-import React, { FC, useState } from 'react'
-import { logIn, logOut } from '../helpers/auth'
+import React, { FC, useRef, useState } from 'react'
+import { logIn } from '../helpers/auth'
 import api from '../helpers/api'
 import { InputText } from 'primereact/inputtext'
 import { Card } from 'primereact/card'
@@ -9,6 +9,7 @@ import { Button } from 'primereact/button'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
+import { Toast } from 'primereact/toast'
 
 type RegisterData = {
   email: string;
@@ -28,6 +29,7 @@ const schema = yup.object().shape({
 
 export default function Register() {
   const [loading, setLoading] = useState(false)
+  const toast = useRef<Toast>(null);
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema)
   })
@@ -35,7 +37,21 @@ export default function Register() {
   const onSubmit = (data: RegisterData) => {
     setLoading(true)
     api.get('csrf-cookie').then(() => {
-      api.post('register', data).then(res => logIn()).catch(e => logOut())
+      api.post('register', data).then((res): any => {
+        setLoading(false)
+        if(res.data.error){
+          return toast.current?.show({severity: 'error', summary: 'Error Message', detail: res.data.data})
+        }
+        return logIn(res.data.user)
+      }).catch(e => {
+        setLoading(false)
+        if(e.response.data.errors){
+          const errors = Object.keys(e.response.data.errors).map(key => e.response.data.errors[key]).flat()
+          return errors.forEach(error => toast.current?.show({severity: 'error', summary: 'Error Message', detail: error}))
+        }
+
+        return toast.current?.show({severity: 'error', summary: 'Error Message', detail: 'Something went wrong!'})
+      })
     })
   }
 
@@ -59,32 +75,35 @@ export default function Register() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="mx-auto md:w-96">
-        <Card title='Register' footer={RegisterCardFooter}>
-          <form onSubmit={handleSubmit(onSubmit)} className="p-fluid">
-            <div className="p-field">
-              <label htmlFor="name">Name</label>
-              <InputText id="name" type="text" {...register("name")} />
-              {getFormErrorMessage('name')}
-            </div>
-            <div className="p-field">
-              <label htmlFor="email">Email</label>
-              <InputText id="email" type="email" {...register("email")} />
-              {getFormErrorMessage('email')}
-            </div>
-            <div className="p-field">
-              <label htmlFor="password">Password</label>
-              <InputText id="password" type="password" {...register("password")} />
-              {getFormErrorMessage('password')}
-            </div>
-            <div className="p-field p-mb-5">
-              <label htmlFor="password_confirmation">Confirm Password</label>
-              <InputText id="password_confirmation" type="password" {...register("password_confirmation")} />
-              {getFormErrorMessage('password_confirmation')}
-            </div>
-            <Button label="Register" iconPos="right" loading={loading} />
-          </form>
-        </Card>
+      <main>
+        <div className="row justify-content-center align-items-center vh-100">
+          <Card title='Register' footer={RegisterCardFooter} className="col-12 col-md-9 col-lg-6 col-xl-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="p-fluid">
+              <div className="p-field">
+                <label htmlFor="name">Name</label>
+                <InputText id="name" type="text" {...register("name")} />
+                {getFormErrorMessage('name')}
+              </div>
+              <div className="p-field">
+                <label htmlFor="email">Email address</label>
+                <InputText id="email" type="email" {...register("email")} />
+                {getFormErrorMessage('email')}
+              </div>
+              <div className="p-field">
+                <label htmlFor="password">Password</label>
+                <InputText id="password" type="password" {...register("password")} />
+                {getFormErrorMessage('password')}
+              </div>
+              <div className="p-field p-mb-5">
+                <label htmlFor="password_confirmation">Confirm Password</label>
+                <InputText id="password_confirmation" type="password" {...register("password_confirmation")} />
+                {getFormErrorMessage('password_confirmation')}
+              </div>
+              <Button label="Register" iconPos="right" loading={loading} />
+            </form>
+          </Card>
+        </div>
+        <Toast ref={toast} />
       </main>
     </div>
   )

@@ -23,7 +23,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
 }
 
 export default function Cart() {
-  const toast = useRef(null);
+  const toast = useRef<Toast>(null);
   const { cart, addToCart, removeOneFromCart, removeFromCart, clearCart } = useCartContext()
   const totalPrice = useGetTotalPrice()
   const totalQuantity = useGetTotalQuantity()
@@ -32,10 +32,10 @@ export default function Cart() {
   useEffect(() => {
     const {success, canceled} = router.query
     if (success) {
-      return toast.current.show({ severity: 'success', summary: 'Success Message', detail: 'Your purchase was successful', life: 3000 });
+      return toast.current?.show({ severity: 'success', summary: 'Success Message', detail: 'Your purchase was successful', life: 3000 });
     }
     if (canceled) {
-      return toast.current.show({ severity: 'info', summary: 'Info Message', detail: 'Your purchase was not successful! Sorry!!!', life: 3000 });
+      return toast.current?.show({ severity: 'info', summary: 'Info Message', detail: 'Your purchase was not successful! Sorry!!!', life: 3000 });
     }
   }, [])
 
@@ -49,7 +49,7 @@ export default function Cart() {
 
   const handleCheckout = () => {
     if (!isLoggedIn) {
-      return toast.current.show({ severity: 'info', summary: 'Info Message', detail: 'You need to be logged in to continue with your purchase', life: 3000 });
+      return toast.current?.show({ severity: 'info', summary: 'Info Message', detail: 'You need to be logged in to continue with your purchase', life: 3000 });
     }
     return api.post('checkout-session', { total: totalPrice, totalQuantity, cart }).then(res => {
       return router.push(res.data['url'])
@@ -76,7 +76,7 @@ export default function Cart() {
               </div>
             </div>
             <div className="row">
-              <table className="table table-striped table-dark">
+              <table className="table table-striped">
                 <thead>
                   <tr>
                     <th scope="col">#</th>
@@ -98,10 +98,10 @@ export default function Cart() {
                         <th scope="row">#</th>
                         <td>{product.title}</td>
                         <td>
-                          <button className="btn btn-xs btn-outline-secondary" onClick={() => addToCart(product)}>+</button>
+                          <button className="btn btn-sm" onClick={() => addToCart(product)}>+</button>
                           {product.quantity}
-                          <button className="btn btn-xs btn-outline-secondary" onClick={() => removeOneFromCart(product)}>-</button>
-                          <button className="btn btn-xs btn-danger" onClick={() => removeFromCart(product)}><i className="pi pi-trash"></i></button>
+                          <button className="btn btn-sm" onClick={() => removeOneFromCart(product)}>-</button>
+                          <button className="btn btn-sm btn-danger" onClick={() => removeFromCart(product)}><i className="pi pi-trash"></i></button>
                         </td >
                         <td>{(product.price).toFixed(2)}</td>
                         <td>{product.discount} %</td>
@@ -121,8 +121,8 @@ export default function Cart() {
 
             <div className="row">
               <div className="d-flex justify-content-between">
-                <Link href="/" passHref><button className="btn btn-light">Back</button></Link>
-                <button className="btn btn-lg btn-success pull-right" onClick={() => handleCheckout()} > Checkout</button >
+                <Link href="/" passHref><button className="btn btn-secondary">Back</button></Link>
+                <button className="btn btn-success pull-right" onClick={() => handleCheckout()} > Checkout</button >
               </div>
             </div>
           </>
@@ -131,7 +131,7 @@ export default function Cart() {
             <div className="row mb-5">
               <h4 className="d-flex justify-content-center mt-5">There are no products</h4>
             </div>
-            <Link href="/" passHref><button className="btn btn-light">Back</button></Link>
+            <Link href="/" passHref><button className="btn btn-secondary">Back</button></Link>
           </>
         }
       </main >

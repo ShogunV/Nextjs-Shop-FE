@@ -3,7 +3,7 @@ import api from '../../helpers/api'
 import { GetServerSideProps } from 'next'
 import React from 'react'
 import { Accordion, AccordionTab } from 'primereact/accordion';
-import { CartProduct } from '../../types'
+import { CartProduct, Order } from '../../types'
 import Header from '../../components/header'
 
 // This gets called on every request
@@ -51,40 +51,45 @@ export default function Orders(props: any) {
         <h1>Orders</h1>
 
         <div className="card">
-          <Accordion multiple activeIndex={[0]}>
-            {orders.map(order => (
+          <Accordion multiple>
+            {orders.map((order: Order) => (
               <AccordionTab key={order.id} header={`${order.user}  -  ${order.created_at}`}>
-                <table className="table table-striped">
-                  <tr>
-                    <th>#</th>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Before Discount</th>
-                    <th>Discount</th>
-                    <th>After Discount</th>
-                    <th>Price</th>
-                  </tr>
+                <table className="table table-striped table-dark">
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Product</th>
+                      <th scope="col">Quantity</th>
+                      <th scope="col">Before Discount</th>
+                      <th scope="col">Discount</th>
+                      <th scope="col">After Discount</th>
+                      <th scope="col">Price</th>
+                    </tr>
+                  </thead>
 
-                  {order['orderItems'].map(item => {
-                    const discountPrice = getDiscountPrice(item)
-                    const productsPrice = getProductsPrice(item)
-                    return (
-                      <tr key={item.id}>
-                        <td></td>
-                        <td>{item['title']}</td>
-                        <td>{item['quantity']}</td>
-                        <td>{item['price'] + ' €'}</td>
-                        <td>{item['discount']}%</td>
-                        <td>{discountPrice + ' €'}</td>
-                        <td>{productsPrice + ' €'}</td>
-                      </tr>
-                    )
-                  })}
+                  <tbody>
 
-                  <tr>
-                    <td colSpan={6}>Total Price</td>
-                    <td>{order['order'].total / 100 + ' €'}</td>
-                  </tr>
+                    {order['data'].map((item: CartProduct) => {
+                      const discountPrice = getDiscountPrice(item)
+                      const productsPrice = getProductsPrice(item)
+                      return (
+                        <tr key={item.id}>
+                          <td></td>
+                          <td>{item['title']}</td>
+                          <td>{item['quantity']}</td>
+                          <td>{item['price'] + ' €'}</td>
+                          <td>{item['discount']}%</td>
+                          <td>{discountPrice + ' €'}</td>
+                          <td>{productsPrice + ' €'}</td>
+                        </tr>
+                      )
+                    })}
+
+                    <tr>
+                      <td colSpan={6}>Total Price</td>
+                      <td>{order.total + ' €'}</td>
+                    </tr>
+                  </tbody>
                 </table>
               </AccordionTab>
             ))}

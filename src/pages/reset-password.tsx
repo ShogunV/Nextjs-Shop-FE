@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import api from '../helpers/api'
 import { useRouter } from 'next/router'
 import { InputText } from 'primereact/inputtext'
@@ -8,6 +8,7 @@ import { Button } from 'primereact/button';
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
+import { Toast } from 'primereact/toast'
 
 type ResetPasswordData = {
   email: string;
@@ -27,13 +28,28 @@ const schema = yup.object().shape({
 export default function ResetPassword() {
   const { query: { token } } = useRouter()
   const [loading, setLoading] = useState(false)
+  const toast = useRef<Toast>(null);
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema)
   })
 
   const onSubmit = (data: ResetPasswordData) => {
     setLoading(true)
-    api.post('reset-password', { ...data, token: token }).then(res => console.log('res : ' + JSON.stringify(res))).catch(e => console.log('e : ' + e))
+    api.post('reset-password', { ...data, token: token }).then(res => {
+      setLoading(false)
+      if(res.data.error){
+        return toast.current?.show({severity: 'error', summary: 'Error Message', detail: res.data.data})
+      }
+      return toast.current?.show({severity: 'success', summary: 'Success Message', detail: res.data.data})
+    }).catch(e => {
+      setLoading(false)
+      if(e.response.data.errors){
+        const errors = Object.keys(e.response.data.errors).map(key => e.response.data.errors[key]).flat()
+        return errors.forEach(error => toast.current?.show({severity: 'error', summary: 'Error Message', detail: error}))
+      }
+
+      return toast.current?.show({severity: 'error', summary: 'Error Message', detail: 'Something went wrong!'})
+    })
   }
 
   const getFormErrorMessage = (name: string) => {
@@ -48,27 +64,30 @@ export default function ResetPassword() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="mx-auto md:w-96">
-        <Card title='Reset password'>
-          <form onSubmit={handleSubmit(onSubmit)} className="p-fluid">
-            <div className="p-field">
-              <label htmlFor="email">Email</label>
-              <InputText id="email" type="email" {...register("email")} />
-              {getFormErrorMessage('email')}
-            </div>
-            <div className="p-field">
-              <label htmlFor="password">Password</label>
-              <InputText id="password" type="password" {...register("password")} />
-              {getFormErrorMessage('password')}
-            </div>
-            <div className="p-field p-mb-5">
-              <label htmlFor="password_confirmation">Confirm Password</label>
-              <InputText id="password_confirmation" type="password" {...register("password_confirmation")} />
-              {getFormErrorMessage('password_confirmation')}
-            </div>
-            <Button label="Submit" iconPos="right" loading={loading} />
-          </form>
-        </Card>
+      <main>
+        <div className="row justify-content-center align-items-center vh-100">
+          <Card title='Reset password' className="col-12 col-md-9 col-lg-6 col-xl-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="p-fluid">
+              <div className="p-field">
+                <label htmlFor="email">Email</label>
+                <InputText id="email" type="email" {...register("email")} />
+                {getFormErrorMessage('email')}
+              </div>
+              <div className="p-field">
+                <label htmlFor="password">Password</label>
+                <InputText id="password" type="password" {...register("password")} />
+                {getFormErrorMessage('password')}
+              </div>
+              <div className="p-field p-mb-5">
+                <label htmlFor="password_confirmation">Confirm Password</label>
+                <InputText id="password_confirmation" type="password" {...register("password_confirmation")} />
+                {getFormErrorMessage('password_confirmation')}
+              </div>
+              <Button label="Submit" iconPos="right" loading={loading} />
+            </form>
+          </Card>
+        </div>
+        <Toast ref={toast} />
       </main>
     </div>
   )
