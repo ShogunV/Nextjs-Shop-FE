@@ -5,6 +5,7 @@ import React from 'react'
 import { DataTable } from 'primereact/datatable'
 import { Column } from 'primereact/column'
 import Header from '../../components/header'
+import { ExtendedUser } from '../../types'
 
 // This gets called on every request
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -29,6 +30,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 export default function Categories(props: any) {
   const users = props.users
 
+  const totalDinerosBodyTemplate = (rowData: ExtendedUser) => {
+    return rowData.totalDineros + '€';
+  }
+
   return (
     <div>
       <Head>
@@ -48,7 +53,7 @@ export default function Categories(props: any) {
             <Column field="email" header="Email" sortable></Column>
             <Column field="totalOrders" header="Total orders" sortable></Column>
             <Column field="totalItems" header="Total items bought" sortable></Column>
-            <Column field="totalDineros" header="Total money spent" sortable></Column>
+            <Column field="totalDineros" header="Total money spent" body={totalDinerosBodyTemplate} sortable></Column>
           </DataTable>
         </div>
       </main>

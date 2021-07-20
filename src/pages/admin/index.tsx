@@ -98,7 +98,7 @@ export default function Products(props: any) {
       let _product = { ...product };
       if (product.id) {
         const data = new FormData()
-        if (fileUploadRef !== null){
+        if (fileUploadRef !== null) {
           if (newImage && fileUploadRef.current && fileUploadRef.current.files && fileUploadRef.current.files.length > 0) {
             _product.image = fileUploadRef.current.files[0];
             data.append('image', _product.image);
@@ -282,7 +282,7 @@ export default function Products(props: any) {
           </div>
 
           <Dialog visible={productDialog} style={{ width: '450px' }} header="Product Details" modal className="p-fluid" footer={productDialogFooter} onHide={hideDialog}>
-            {product.image && <Image src={`http://localhost:8000/storage/${product.image ? product.image : 'No_image_available.png'}`} width={120} height={120} layout='responsive' alt="PRoduct image" className="product-image" />}
+            {product.image && <Image src={`http://localhost:8000/storage/${product.image ? product.image : 'images/No_image_available.png'}`} width={120} height={120} layout='responsive' alt="PRoduct image" className="product-image" />}
             <div className="p-field">
               <label htmlFor="title">Name</label>
               <InputText id="title" value={product.title} onChange={(e) => onInputChange(e, 'title')} required autoFocus className={classNames({ 'p-invalid': submitted && !product.title })} />
@@ -306,10 +306,10 @@ export default function Products(props: any) {
               {submitted && !product.category_id && <small className="p-error">Category is required.</small>}
             </div>
 
-            <FileUpload name="image" url={`http://localhost:8000/storage/`} onSelect={onUpload} mode="basic" />
-
-            <FileUpload name="image" url={`http://localhost:8000/storage/`} onSelect={onUpload} uploadOptions={{className: 'd-none'}} accept="image/*" maxFileSize={1000000}
-              emptyTemplate={<p className="p-m-0">Drag and drop files to here to upload.</p>} />
+            <div className="p-field">
+              <label className="p-mb-3">Product Image</label>
+              <FileUpload name="image" url={`http://localhost:8000/storage/`} onSelect={onUpload} mode="basic" chooseLabel={product.image ? product.image.toString().replace('images/', '') : 'Choose'} />
+            </div>
 
             <div className="p-formgrid p-grid">
               <div className="p-field p-col">

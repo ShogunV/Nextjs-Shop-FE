@@ -54,7 +54,7 @@ export default function Orders(props: any) {
           <Accordion multiple>
             {orders.map((order: Order) => (
               <AccordionTab key={order.id} header={`${order.user}  -  ${order.created_at}`}>
-                <table className="table table-striped table-dark">
+                <table className="table table-striped">
                   <thead>
                     <tr>
                       <th scope="col">#</th>

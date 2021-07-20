@@ -2,7 +2,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useGetTotalQuantity } from "../context/cart";
 import api from "../helpers/api";
-import { logOut, useIsLoggedIn } from "../helpers/auth";
+import { logOut, useGetUserRole, useIsLoggedIn } from "../helpers/auth";
 import { ProductCategory } from "../types";
 
 export default function Header(props: any) {
@@ -32,23 +32,47 @@ export default function Header(props: any) {
     api.post('logout').then(res => logOut()).catch(e => console.log(e))
   }
 
-  const AuthSection = () => {
-    if (isLoggedIn) {
-      if (userEmail) {
-        return (
-          <li className="nav-item dropdown">
-            <a className="nav-link dropdown-toggle" onClick={() => setShowProfileshowProfileDropdown(state => !state)} id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              {userEmail}
-            </a>
-            <ul className={`dropdown-menu ${showProfileDropdown ? 'show' : ''}`} aria-labelledby="navbarDropdownMenuLink">
-              <li><a className="dropdown-item" role="button" onClick={handleLogOut}>Log out</a></li>
-            </ul>
-          </li>
-        )
-      }
+  const MenuItems = () => {
+    const userRole = useGetUserRole()
+    if (userRole === 'admin') {
       return (
-        <li className="nav-item">
-          <a className="nav-link" role="button" onClick={handleLogOut}>Log out</a>
+        <ul className="navbar-nav me-auto mb-2 mb-3 mb-lg-0">
+          <li className="nav-item">
+            <Link href={`/admin`}><a className="nav-link">Products</a></Link>
+          </li>
+          <li className="nav-item">
+            <Link href={`/admin/categories`}><a className="nav-link">Categories</a></Link>
+          </li>
+          <li className="nav-item">
+            <Link href={`/admin/users`}><a className="nav-link">Users</a></Link>
+          </li>
+          <li className="nav-item">
+            <Link href={`/admin/orders`}><a className="nav-link">Orders</a></Link>
+          </li>
+        </ul>
+      )
+    }
+    return (
+      <ul className="navbar-nav me-auto mb-2 mb-3 mb-lg-0">
+        {menuItems.map((item: ProductCategory) => (
+          <li key={item.id} className="nav-item">
+            <Link href={`/?category=${item.title}`}><a className="nav-link">{item.title}</a></Link>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
+  const AuthSection = () => {
+    if (isLoggedIn && userEmail) {
+      return (
+        <li className="nav-item dropdown">
+          <a className="nav-link dropdown-toggle" onClick={() => setShowProfileshowProfileDropdown(state => !state)} id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {userEmail}
+          </a>
+          <ul className={`dropdown-menu ${showProfileDropdown ? 'show' : ''}`} aria-labelledby="navbarDropdownMenuLink">
+            <li><a className="dropdown-item" role="button" onClick={handleLogOut}>Log out</a></li>
+          </ul>
         </li>
       )
     }
@@ -65,7 +89,7 @@ export default function Header(props: any) {
   }
 
   return (
-    <header>
+    <header className="mb-4">
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
         <div className="container-fluid">
           <Link href="/"><a className="navbar-brand">Larbonne</a></Link>
@@ -73,13 +97,7 @@ export default function Header(props: any) {
             <span className="navbar-toggler-icon"></span>
           </button>
           <div className={`collapse navbar-collapse ${showMobileMenu ? 'show' : ''}`} id="navbarText">
-            <ul className="navbar-nav me-auto mb-2 mb-3 mb-lg-0">
-              {menuItems.map((item: ProductCategory) => (
-                <li key={item.id} className="nav-item">
-                  <Link href={`/?category=${item.title}`}><a className="nav-link">{item.title}</a></Link>
-                </li>
-              ))}
-            </ul>
+            {mounted && <MenuItems />}
             <ul className="navbar-nav mb-2 mb-lg-0">
               <li className="nav-item mx-3">
                 <Link href="/cart">

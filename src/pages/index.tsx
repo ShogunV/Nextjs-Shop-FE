@@ -52,8 +52,6 @@ export default function Home(props: any) {
       <Header />
 
       <main className="container">
-        <h1>Products</h1>
-
         <div className="row mb-3 d-flex justify-content-end">
           <div className="col-lg-4 col-sm-6">
             <input id="search" type="text" className="form-control" name="search" placeholder="Search..." value={search} onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleSearch(e)} />
@@ -69,7 +67,7 @@ export default function Home(props: any) {
                 <div className="card">
                   <Link href={`/products/${product.id}`} passHref >
                     <a>
-                      <Image className="card-image-full" role="button" src={`http://localhost:8000/storage/${product.image}`} alt="Product image" width={'100%'} height={'100%'} layout='responsive' />
+                      <Image className="card-image-full" role="button" src={`http://localhost:8000/storage/${product.image ? product.image : 'images/No_image_available.png'}`} alt="Product image" width={'100%'} height={'100%'} layout='responsive' />
                     </a>
                   </Link>
                   <div className="card-body">

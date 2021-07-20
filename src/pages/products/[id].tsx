@@ -42,7 +42,7 @@ export default function Home(props: any) {
         {product ?
           <div className="row">
             <div className="col-12 col-lg-6">
-              <Image className="w-full" src={`http://localhost:8000/storage/${product.image}`} alt="Mountain" width={'100%'} height={'100%'} layout='responsive' />
+              <Image className="w-full" src={`http://localhost:8000/storage/${product.image ? product.image : 'images/No_image_available.png'}`} alt="Mountain" width={'100%'} height={'100%'} layout='responsive' />
             </div>
             <div className="col-12 col-lg-6">
               <h1>{product.title}</h1>

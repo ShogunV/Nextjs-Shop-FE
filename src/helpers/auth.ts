@@ -1,48 +1,49 @@
 import router, { useRouter } from "next/router";
 import { useEffect } from "react";
-
-type User = {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-}
+import { User } from "../types";
 
 export const useIsLoggedIn = () => {
-  if (typeof window !== 'undefined') {
-    return !!localStorage.getItem('loggedIn')
+  if (typeof window !== "undefined") {
+    return !!localStorage.getItem("loggedIn");
   }
-  return false
+  return false;
+};
+
+export const useGetUserRole = () => {
+  if (typeof window !== "undefined") {
+    return localStorage.getItem("userRole");
+  }
+  return "customer";
 };
 
 export const logIn = ($user: User) => {
-  localStorage.setItem('loggedIn', 'true')
-  localStorage.setItem('userEmail', $user.email)
-  localStorage.setItem('userRole', $user.role ?? 'user')
+  localStorage.setItem("loggedIn", "true");
+  localStorage.setItem("userEmail", $user.email);
+  localStorage.setItem("userRole", $user.role ?? "customer");
 
-  if($user.role === 'admin'){
-    return router.push("/admin")
+  if ($user.role === "admin") {
+    return router.push("/admin");
   }
   return router.push("/");
 };
 
 export const logOut = () => {
   if (typeof window !== "undefined") {
-    localStorage.removeItem('loggedIn')
-    localStorage.removeItem('userEmail')
-    localStorage.removeItem('userRole')
+    localStorage.removeItem("loggedIn");
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("userRole");
 
     router.push("/");
   }
 };
 
 export const useRedirectIfNotLoggedIn = () => {
-  const router = useRouter()
-  const isLoggedIn = useIsLoggedIn()
+  const router = useRouter();
+  const isLoggedIn = useIsLoggedIn();
 
   return useEffect(() => {
     if (!isLoggedIn) {
-      router.replace('login')
+      router.replace("login");
     }
-  }, [router, isLoggedIn])
-}
+  }, [router, isLoggedIn]);
+};

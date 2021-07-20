@@ -37,18 +37,18 @@ export default function ResetPassword() {
     setLoading(true)
     api.post('reset-password', { ...data, token: token }).then(res => {
       setLoading(false)
-      if(res.data.error){
-        return toast.current?.show({severity: 'error', summary: 'Error Message', detail: res.data.data})
+      if (res.data.error) {
+        return toast.current?.show({ severity: 'error', summary: 'Error Message', detail: res.data.data })
       }
-      return toast.current?.show({severity: 'success', summary: 'Success Message', detail: res.data.data})
+      return toast.current?.show({ severity: 'success', summary: 'Success Message', detail: res.data.data })
     }).catch(e => {
       setLoading(false)
-      if(e.response.data.errors){
+      if (e.response.data.errors) {
         const errors = Object.keys(e.response.data.errors).map(key => e.response.data.errors[key]).flat()
-        return errors.forEach(error => toast.current?.show({severity: 'error', summary: 'Error Message', detail: error}))
+        return errors.forEach(error => toast.current?.show({ severity: 'error', summary: 'Error Message', detail: error }))
       }
 
-      return toast.current?.show({severity: 'error', summary: 'Error Message', detail: 'Something went wrong!'})
+      return toast.current?.show({ severity: 'error', summary: 'Error Message', detail: 'Something went wrong!' })
     })
   }
 

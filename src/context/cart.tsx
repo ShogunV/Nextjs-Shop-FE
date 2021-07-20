@@ -54,7 +54,7 @@ export function CartProvider({ children }: Props) {
   }
 
   const removeFromCart = (product: CartProduct) => {
-    const newCart: Cart = [ ...cart ]
+    const newCart: Cart = [...cart]
     const productInCart = newCart.find(cartProduct => cartProduct.id === product.id)
     if (productInCart) {
       const [productInCart, ...rest] = newCart
@@ -78,7 +78,7 @@ export function useCartContext() {
 }
 
 export function useCart() {
-  const {cart} = useCartContext()
+  const { cart } = useCartContext()
   return cart
 }
 

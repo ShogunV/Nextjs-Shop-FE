@@ -78,7 +78,7 @@ export default function Categories(props: any) {
     if (category.title.trim()) {
       let _category = { ...category };
       if (category.id) {
-        api.post(`/admin/categories/${category.id}`, _category).then(res => {
+        api.post(`/admin/categories/${category.id}`, { ..._category, _method: 'put' }).then(res => {
           setCategories(res.data.categories)
         }).catch(e => console.log(e))
         toast.current?.show({ severity: 'success', summary: 'Successful', detail: 'Category Updated', life: 3000 });

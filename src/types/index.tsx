@@ -14,6 +14,19 @@ export type ProductCategory = {
   title: string;
 }
 
+export type User = {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+}
+
+export interface ExtendedUser extends User {
+  totalOrders: number;
+  totalItems: number;
+  totalDineros: number;
+}
+
 export type Order = {
   id: number;
   user: string;
