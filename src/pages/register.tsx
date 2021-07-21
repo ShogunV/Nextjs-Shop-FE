@@ -39,19 +39,23 @@ export default function Register() {
     api.get('csrf-cookie').then(() => {
       api.post('register', data).then((res): any => {
         setLoading(false)
-        if (res.data.error) {
-          return toast.current?.show({ severity: 'error', summary: 'Error Message', detail: res.data.data })
-        }
         return logIn(res.data.user)
       }).catch(e => {
         setLoading(false)
-        if (e.response.data.errors) {
-          const errors = Object.keys(e.response.data.errors).map(key => e.response.data.errors[key]).flat()
-          return errors.forEach(error => toast.current?.show({ severity: 'error', summary: 'Error Message', detail: error }))
+        const { error, data, errors } = e.response.data
+        if (error) {
+          return toast.current?.show({ severity: 'error', summary: 'Error Message', detail: data })
+        }
+        if (errors) {
+          const allErrors = Object.keys(errors).map(key => errors[key]).flat()
+          return allErrors.forEach(error => toast.current?.show({ severity: 'error', summary: 'Error Message', detail: error }))
         }
 
         return toast.current?.show({ severity: 'error', summary: 'Error Message', detail: 'Something went wrong!' })
       })
+    }).catch(e => {
+      setLoading(false)
+      return toast.current?.show({ severity: 'error', summary: 'Error Message', detail: 'Something went wrong!' })
     })
   }
 

@@ -41,6 +41,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 }
 
 export default function Products(props: any) {
+  const backEndUrl = process.env.NEXT_PUBLIC_BACK_END_URL
   const [products, setProducts] = useState([])
   const allProducts = props.products
   const allCategories = props.categories
@@ -200,7 +201,7 @@ export default function Products(props: any) {
   }
 
   const imageBodyTemplate = (rowData: CartProduct) => {
-    return <Image src={`http://localhost:8000/storage/${rowData.image ? rowData.image : 'images/No_image_available.png'}`} width={120} height={120} layout='responsive' alt={rowData.title} className="product-image" />
+    return <Image src={`${backEndUrl}/storage/${rowData.image ? rowData.image : 'images/No_image_available.png'}`} width={120} height={120} layout='responsive' alt={rowData.title} className="product-image" />
   }
 
   const priceBodyTemplate = (rowData: CartProduct) => {
@@ -282,7 +283,7 @@ export default function Products(props: any) {
           </div>
 
           <Dialog visible={productDialog} style={{ width: '450px' }} header="Product Details" modal className="p-fluid" footer={productDialogFooter} onHide={hideDialog}>
-            {product.image && <Image src={`http://localhost:8000/storage/${product.image ? product.image : 'images/No_image_available.png'}`} width={120} height={120} layout='responsive' alt="PRoduct image" className="product-image" />}
+            {product.image && <Image src={`${backEndUrl}/storage/${product.image ? product.image : 'images/No_image_available.png'}`} width={120} height={120} layout='responsive' alt="PRoduct image" className="product-image" />}
             <div className="p-field">
               <label htmlFor="title">Name</label>
               <InputText id="title" value={product.title} onChange={(e) => onInputChange(e, 'title')} required autoFocus className={classNames({ 'p-invalid': submitted && !product.title })} />
@@ -308,7 +309,7 @@ export default function Products(props: any) {
 
             <div className="p-field">
               <label className="p-mb-3">Product Image</label>
-              <FileUpload name="image" url={`http://localhost:8000/storage/`} onSelect={onUpload} mode="basic" chooseLabel={product.image ? product.image.toString().replace('images/', '') : 'Choose'} />
+              <FileUpload name="image" url={`${backEndUrl}/storage/`} onSelect={onUpload} mode="basic" chooseLabel={product.image ? product.image.toString().replace('images/', '') : 'Choose'} />
             </div>
 
             <div className="p-formgrid p-grid">

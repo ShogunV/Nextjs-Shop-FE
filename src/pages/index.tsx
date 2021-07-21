@@ -21,6 +21,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 }
 
 export default function Home(props: any) {
+  const backEndUrl = process.env.NEXT_PUBLIC_BACK_END_URL
   const [search, setSearch] = useState('')
   const [products, setProducts] = useState([])
   const allProducts = props.products
@@ -67,7 +68,7 @@ export default function Home(props: any) {
                 <div className="card">
                   <Link href={`/products/${product.id}`} passHref >
                     <a>
-                      <Image className="card-image-full" role="button" src={`http://localhost:8000/storage/${product.image ? product.image : 'images/No_image_available.png'}`} alt="Product image" width={'100%'} height={'100%'} layout='responsive' />
+                      <Image className="card-image-full" role="button" src={`${backEndUrl}/storage/${product.image ? product.image : 'images/No_image_available.png'}`} alt="Product image" width={'100%'} height={'100%'} layout='responsive' />
                     </a>
                   </Link>
                   <div className="card-body">

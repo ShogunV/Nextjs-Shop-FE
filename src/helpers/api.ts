@@ -1,22 +1,8 @@
 import axios from "axios";
-import { logOut } from "./auth";
 
 const api = axios.create({
-  baseURL: "http://localhost:8000/api",
+  baseURL: `${process.env.NEXT_PUBLIC_BACK_END_URL}/api`,
   withCredentials: true,
 });
-
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      logOut();
-
-      return Promise.reject();
-    }
-
-    return Promise.reject(error);
-  }
-);
 
 export default api;
