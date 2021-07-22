@@ -45,7 +45,7 @@ export default function Products(props: any) {
   const [products, setProducts] = useState([])
   const allProducts = props.products
   const allCategories = props.categories
-  const fileUploadRef = useRef<HTMLInputElement>(null)
+  const fileUploadRef = useRef<FileUpload>(null)
 
   let emptyProduct: CartProduct = {
     id: 0,
@@ -63,7 +63,7 @@ export default function Products(props: any) {
   const [deleteProductDialog, setDeleteProductDialog] = useState(false);
   const [product, setProduct] = useState(emptyProduct);
   const [selectedProducts, setSelectedProducts] = useState(null);
-  const [newImage, setNewImage] = useState(false);
+  const [newImage, setNewImage] = useState<File | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [globalFilter, setGlobalFilter] = useState('');
   const toast = useRef<Toast>(null);
@@ -96,38 +96,26 @@ export default function Products(props: any) {
     setSubmitted(true);
 
     if (product.title.trim() && product.category_id && product.price) {
-      let _product = { ...product };
+      const _product = { ...product };
+
+      const data = new FormData()
+      if (newImage) {
+        data.append('image', newImage);
+      }
+      data.append('title', _product.title);
+      data.append('price', String(_product.price));
+      data.append('category_id', String(_product.category_id));
+      data.append('discount', String(_product.discount));
+      data.append('description', _product.description);
+
       if (product.id) {
-        const data = new FormData()
-        if (fileUploadRef !== null) {
-          if (newImage && fileUploadRef.current && fileUploadRef.current.files && fileUploadRef.current.files.length > 0) {
-            _product.image = fileUploadRef.current.files[0];
-            data.append('image', _product.image);
-          }
-        }
         data.append('id', String(product.id));
-        data.append('price', String(_product.price));
-        data.append('title', _product.title);
-        data.append('category_id', String(_product.category_id));
-        data.append('discount', String(_product.discount));
-        data.append('description', _product.description);
         data.append('_method', 'put');
         api.post(`/admin/products/${product.id}`, data).then(res => {
           setProducts(res.data.products)
           toast.current?.show({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
         }).catch(e => console.log(e))
-      }
-      else {
-        const data = new FormData()
-        if (newImage && fileUploadRef.current && fileUploadRef.current.files && fileUploadRef.current.files.length > 0) {
-          _product.image = fileUploadRef.current.files[0];
-          data.append('image', _product.image);
-        }
-        data.append('price', String(_product.price));
-        data.append('title', _product.title);
-        data.append('category_id', String(_product.category_id));
-        data.append('discount', String(_product.discount));
-        data.append('description', _product.description);
+      } else {
         api.post('/admin/products', data).then(res => {
           setProducts(res.data.products)
           toast.current?.show({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 });
@@ -243,7 +231,12 @@ export default function Products(props: any) {
     </React.Fragment>
   );
   const onUpload = (e: FileUploadSelectParams) => {
-    setNewImage(true)
+    setNewImage(e.files[0])
+  }
+
+  const getImageTitleString = (image: string) => {
+    const imageStr = image.replace('images/', '')
+    return (imageStr.length > 25) ? imageStr.substr(0, 24) + '...' : imageStr
   }
 
   return (
@@ -309,7 +302,7 @@ export default function Products(props: any) {
 
             <div className="p-field">
               <label className="p-mb-3">Product Image</label>
-              <FileUpload name="image" url={`${backEndUrl}/storage/`} onSelect={onUpload} mode="basic" chooseLabel={product.image ? product.image.toString().replace('images/', '') : 'Choose'} />
+              <FileUpload ref={fileUploadRef} name="image" url={`${backEndUrl}/storage/`} maxFileSize={1000000} onSelect={onUpload} mode="basic" chooseLabel={product.image ? getImageTitleString(product.image.toString()) : 'Choose'} />
             </div>
 
             <div className="p-formgrid p-grid">
