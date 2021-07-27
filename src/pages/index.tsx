@@ -59,12 +59,12 @@ export default function Home(props: any) {
           </div>
         </div>
 
-        <div className="row row-cols-2 row-cols-lg-5 g-2 g-lg-3">
+        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-2 g-lg-3">
           {products.map((product: Product) => {
             const price = product.price.toFixed(2);
             const discountPrice = Math.round(product.price * (1 - (product.discount / 100))).toFixed(2);
             return (
-              <div key={product.id} className="col-sm-12 col-md-6 col-lg-4">
+              <div key={product.id} className="col">
                 <div className="card">
                   <Link href={`/products/${product.id}`} passHref >
                     <a>
@@ -78,16 +78,16 @@ export default function Home(props: any) {
                       {product.discount ?
                         <>
                           <div className="ribbon"><span>{-product.discount}%</span></div>
-                          <div className="price pull-left">
+                          <div className="price">
                             <div className="full-price fs-6"><s>{`${price} €`}</s></div>
                             <div className="discount-price fs-5 fw-bold">{`${discountPrice} €`}</div>
                           </div>
                         </> :
-                        <div className="price pull-left">
+                        <div className="price">
                           <div className="discount-price fs-5 fw-bold">{`${discountPrice} €`}</div>
                         </div>
                       }
-                      <button type="button" className="btn btn-success pull-right cart" onClick={() => addToCart(product)}><i className="fa fa-shopping-cart" aria-hidden="true"></i><span className="glyphicon glyphicon-shopping-cart"></span>Add to cart</button>
+                      <button type="button" className="btn btn-success cart" onClick={() => addToCart(product)}><i className="fa fa-shopping-cart" aria-hidden="true"></i><span className="glyphicon glyphicon-shopping-cart"></span>Add to cart</button>
                     </div>
                   </div>
                 </div>
