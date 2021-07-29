@@ -19,6 +19,15 @@ import Image from 'next/image'
 import Header from '../../components/header'
 import { CartProduct, ProductCategory } from '../../types'
 
+type ProductErrors = {
+  title: string[];
+  description: string[];
+  image: string[];
+  category_id: string[];
+  price: string[];
+  discount: string[];
+}
+
 // This gets called on every request
 export const getServerSideProps: GetServerSideProps = async (context) => {
   // Fetch data from external API
@@ -66,6 +75,8 @@ export default function Products(props: any) {
   const [newImage, setNewImage] = useState<File | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [globalFilter, setGlobalFilter] = useState('');
+  const noErrors: ProductErrors = { title: [], description: [], image: [], category_id: [], price: [], discount: [] };
+  const [productErrors, setProductErrors] = useState<ProductErrors>(noErrors);
   const toast = useRef<Toast>(null);
   const dt = useRef<DataTable>(null);
 
@@ -86,6 +97,7 @@ export default function Products(props: any) {
   const hideDialog = () => {
     setSubmitted(false);
     setProductDialog(false);
+    setProductErrors(noErrors);
   }
 
   const hideDeleteProductDialog = () => {
@@ -114,16 +126,29 @@ export default function Products(props: any) {
         api.post(`/admin/products/${product.id}`, data).then(res => {
           setProducts(res.data.products)
           toast.current?.show({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
-        }).catch(e => console.log(e))
+          setProductDialog(false);
+          setProduct(emptyProduct);
+          setProductErrors(noErrors);
+        }).catch(e => {
+          if (e.response.status === 422) {
+            return setProductErrors({ ...productErrors, ...e.response.data.errors })
+          }
+          return toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Something went wrong!', life: 3000 });
+        })
       } else {
         api.post('/admin/products', data).then(res => {
           setProducts(res.data.products)
           toast.current?.show({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 });
-        }).catch(e => console.log(e))
+          setProductDialog(false);
+          setProduct(emptyProduct);
+          setProductErrors(noErrors);
+        }).catch(e => {
+          if (e.response.status === 422) {
+            return setProductErrors({ ...productErrors, ...e.response.data.errors })
+          }
+          return toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Something went wrong!', life: 3000 });
+        })
       }
-
-      setProductDialog(false);
-      setProduct(emptyProduct);
     }
   }
 
@@ -230,8 +255,11 @@ export default function Products(props: any) {
       <Button label="Yes" icon="pi pi-check" className="p-button-text" onClick={deleteProduct} />
     </React.Fragment>
   );
-  const onUpload = (e: FileUploadSelectParams) => {
+  const onFileSelect = (e: FileUploadSelectParams) => {
     setNewImage(e.files[0])
+  }
+  const onFileValidationFail = (file: File) => {
+    setProductErrors({ ...productErrors, image: ['Max image size iz 1mb.'] })
   }
 
   const getImageTitleString = (image: string) => {
@@ -279,12 +307,14 @@ export default function Products(props: any) {
             {product.image && <Image src={`${backEndUrl}/storage/${product.image ? product.image : 'images/No_image_available.png'}`} width={120} height={120} layout='responsive' alt="PRoduct image" className="product-image" />}
             <div className="p-field">
               <label htmlFor="title">Name</label>
-              <InputText id="title" value={product.title} onChange={(e) => onInputChange(e, 'title')} required autoFocus className={classNames({ 'p-invalid': submitted && !product.title })} />
+              <InputText id="title" value={product.title} onChange={(e) => onInputChange(e, 'title')} required autoFocus className={classNames({ 'p-invalid': (submitted && !product.title) || productErrors.title.length })} />
               {submitted && !product.title && <small className="p-error">Name is required.</small>}
+              {productErrors.title && productErrors.title.map((error: string, index: number) => <small key={index} className="p-error">{error}</small>)}
             </div>
             <div className="p-field">
               <label htmlFor="description">Description</label>
-              <InputTextarea id="description" value={product.description} onChange={(e) => onInputChange(e, 'description')} required rows={3} cols={20} />
+              <InputTextarea id="description" value={product.description} onChange={(e) => onInputChange(e, 'description')} required rows={3} cols={20} className={classNames({ 'p-invalid': productErrors.description.length })} />
+              {productErrors.description && productErrors.description.map((error: string, index: number) => <small key={index} className="p-error">{error}</small>)}
             </div>
 
             <div className="p-field">
@@ -298,22 +328,26 @@ export default function Products(props: any) {
                 ))}
               </div>
               {submitted && !product.category_id && <small className="p-error">Category is required.</small>}
+              {productErrors.category_id && productErrors.category_id.map((error: string, index: number) => <small key={index} className="p-error">{error}</small>)}
             </div>
 
             <div className="p-field">
               <label className="p-mb-3">Product Image</label>
-              <FileUpload ref={fileUploadRef} name="image" url={`${backEndUrl}/storage/`} maxFileSize={1000000} onSelect={onUpload} mode="basic" chooseLabel={product.image ? getImageTitleString(product.image.toString()) : 'Choose'} />
+              <FileUpload ref={fileUploadRef} name="image" url={`${backEndUrl}/storage/`} maxFileSize={1000000} onSelect={onFileSelect} onValidationFail={onFileValidationFail} mode="basic" chooseLabel={product.image ? getImageTitleString(product.image.toString()) : 'Choose'} />
+              {productErrors.image && productErrors.image.map((error: string, index: number) => <small key={index} className="p-error">{error}</small>)}
             </div>
 
             <div className="p-formgrid p-grid">
               <div className="p-field p-col">
                 <label htmlFor="price">Price</label>
-                <InputNumber id="price" value={product.price} onValueChange={(e) => onInputNumberChange(e, 'price')} suffix="€" className={classNames({ 'p-invalid': submitted && !product.price })} />
+                <InputNumber id="price" value={product.price} onValueChange={(e) => onInputNumberChange(e, 'price')} suffix="€" className={classNames({ 'p-invalid': (submitted && !product.price) || productErrors.price.length })} />
                 {submitted && !product.price && <small className="p-error">Price is required.</small>}
+                {productErrors.price && productErrors.price.map((error: string, index: number) => <small key={index} className="p-error">{error}</small>)}
               </div>
               <div className="p-field p-col">
                 <label htmlFor="discount">Discount</label>
-                <InputNumber id="discount" value={product.discount} min={0} max={100} onValueChange={(e) => onInputNumberChange(e, 'discount')} suffix="%" />
+                <InputNumber id="discount" value={product.discount} min={0} max={100} onValueChange={(e) => onInputNumberChange(e, 'discount')} suffix="%" className={classNames({ 'p-invalid': productErrors.discount.length })} />
+                {productErrors.discount && productErrors.discount.map((error: string, index: number) => <small key={index} className="p-error">{error}</small>)}
               </div>
             </div>
           </Dialog>

@@ -15,6 +15,10 @@ import { InputText } from 'primereact/inputtext';
 import Header from '../../components/header'
 import { CartProduct, ProductCategory } from '../../types';
 
+type CategoryErrors = {
+  title: string[]
+}
+
 // This gets called on every request
 export const getServerSideProps: GetServerSideProps = async (context) => {
   // Fetch data from external API
@@ -50,6 +54,8 @@ export default function Categories(props: any) {
   const [selectedCategories, setSelectedCategories] = useState(null);
   const [submitted, setSubmitted] = useState(false);
   const [globalFilter, setGlobalFilter] = useState('');
+  const noErrors: CategoryErrors = { title: [] }
+  const [categoryErrors, setCategoryErrors] = useState<CategoryErrors>(noErrors);
   const toast = useRef<Toast>(null);
   const dt = useRef<DataTable>(null);
 
@@ -66,6 +72,7 @@ export default function Categories(props: any) {
   const hideDialog = () => {
     setSubmitted(false);
     setCategoryDialog(false);
+    setCategoryErrors(noErrors)
   }
 
   const hideDeleteCategoryDialog = () => {
@@ -80,18 +87,31 @@ export default function Categories(props: any) {
       if (category.id) {
         api.post(`/admin/categories/${category.id}`, { ..._category, _method: 'put' }).then(res => {
           setCategories(res.data.categories)
-        }).catch(e => console.log(e))
-        toast.current?.show({ severity: 'success', summary: 'Successful', detail: 'Category Updated', life: 3000 });
+          toast.current?.show({ severity: 'success', summary: 'Successful', detail: 'Category Updated', life: 3000 });
+          setCategoryDialog(false);
+          setCategory(emptyCategory);
+          setCategoryErrors(noErrors);
+        }).catch(e => {
+          if (e.response.status === 422) {
+            return setCategoryErrors({ ...categoryErrors, ...e.response.data.errors })
+          }
+          return toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Something went wrong!', life: 3000 });
+        })
       }
       else {
         api.post('/admin/categories', _category).then(res => {
           setCategories(res.data.categories)
-        }).catch(e => console.log(e))
-        toast.current?.show({ severity: 'success', summary: 'Successful', detail: 'Category Created', life: 3000 });
+          toast.current?.show({ severity: 'success', summary: 'Successful', detail: 'Category Created', life: 3000 });
+          setCategoryDialog(false);
+          setCategory(emptyCategory);
+          setCategoryErrors(noErrors);
+        }).catch(e => {
+          if (e.response.status === 422) {
+            return setCategoryErrors({ ...categoryErrors, ...e.response.data.errors })
+          }
+          return toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Something went wrong!', life: 3000 });
+        })
       }
-
-      setCategoryDialog(false);
-      setCategory(emptyCategory);
     }
   }
 
@@ -208,8 +228,9 @@ export default function Categories(props: any) {
           <Dialog visible={categoryDialog} style={{ width: '450px' }} header="Category Details" modal className="p-fluid" footer={categoryDialogFooter} onHide={hideDialog}>
             <div className="p-field">
               <label htmlFor="title">Name</label>
-              <InputText id="title" value={category.title} onChange={(e) => onInputChange(e, 'title')} required autoFocus className={classNames({ 'p-invalid': submitted && !category.title })} />
+              <InputText id="title" value={category.title} onChange={(e) => onInputChange(e, 'title')} required autoFocus className={classNames({ 'p-invalid': (submitted && !category.title) || categoryErrors.title.length })} />
               {submitted && !category.title && <small className="p-error">Name is required.</small>}
+              {categoryErrors.title && categoryErrors.title.map((error: string, index: number) => <small key={index} className="p-error">{error}</small>)}
             </div>
           </Dialog>
 
