@@ -309,12 +309,12 @@ export default function Products(props: any) {
               <label htmlFor="title">Name</label>
               <InputText id="title" value={product.title} onChange={(e) => onInputChange(e, 'title')} required autoFocus className={classNames({ 'p-invalid': (submitted && !product.title) || productErrors.title.length })} />
               {submitted && !product.title && <small className="p-error">Name is required.</small>}
-              {productErrors.title && productErrors.title.map((error: string, index: number) => <small key={index} className="p-error">{error}</small>)}
+              {productErrors.title && productErrors.title.map((error: string, index: number) => <small key={index} className="p-error d-block">{error}</small>)}
             </div>
             <div className="p-field">
               <label htmlFor="description">Description</label>
               <InputTextarea id="description" value={product.description} onChange={(e) => onInputChange(e, 'description')} required rows={3} cols={20} className={classNames({ 'p-invalid': productErrors.description.length })} />
-              {productErrors.description && productErrors.description.map((error: string, index: number) => <small key={index} className="p-error">{error}</small>)}
+              {productErrors.description && productErrors.description.map((error: string, index: number) => <small key={index} className="p-error d-block">{error}</small>)}
             </div>
 
             <div className="p-field">
@@ -328,13 +328,13 @@ export default function Products(props: any) {
                 ))}
               </div>
               {submitted && !product.category_id && <small className="p-error">Category is required.</small>}
-              {productErrors.category_id && productErrors.category_id.map((error: string, index: number) => <small key={index} className="p-error">{error}</small>)}
+              {productErrors.category_id && productErrors.category_id.map((error: string, index: number) => <small key={index} className="p-error d-block">{error}</small>)}
             </div>
 
             <div className="p-field">
               <label className="p-mb-3">Product Image</label>
               <FileUpload ref={fileUploadRef} name="image" url={`${backEndUrl}/storage/`} maxFileSize={1000000} onSelect={onFileSelect} onValidationFail={onFileValidationFail} mode="basic" chooseLabel={product.image ? getImageTitleString(product.image.toString()) : 'Choose'} />
-              {productErrors.image && productErrors.image.map((error: string, index: number) => <small key={index} className="p-error">{error}</small>)}
+              {productErrors.image && productErrors.image.map((error: string, index: number) => <small key={index} className="p-error d-block">{error}</small>)}
             </div>
 
             <div className="p-formgrid p-grid">
@@ -342,12 +342,12 @@ export default function Products(props: any) {
                 <label htmlFor="price">Price</label>
                 <InputNumber id="price" value={product.price} onValueChange={(e) => onInputNumberChange(e, 'price')} suffix="€" className={classNames({ 'p-invalid': (submitted && !product.price) || productErrors.price.length })} />
                 {submitted && !product.price && <small className="p-error">Price is required.</small>}
-                {productErrors.price && productErrors.price.map((error: string, index: number) => <small key={index} className="p-error">{error}</small>)}
+                {productErrors.price && productErrors.price.map((error: string, index: number) => <small key={index} className="p-error d-block">{error}</small>)}
               </div>
               <div className="p-field p-col">
                 <label htmlFor="discount">Discount</label>
                 <InputNumber id="discount" value={product.discount} min={0} max={100} onValueChange={(e) => onInputNumberChange(e, 'discount')} suffix="%" className={classNames({ 'p-invalid': productErrors.discount.length })} />
-                {productErrors.discount && productErrors.discount.map((error: string, index: number) => <small key={index} className="p-error">{error}</small>)}
+                {productErrors.discount && productErrors.discount.map((error: string, index: number) => <small key={index} className="p-error d-block">{error}</small>)}
               </div>
             </div>
           </Dialog>

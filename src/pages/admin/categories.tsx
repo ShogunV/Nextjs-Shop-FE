@@ -230,7 +230,7 @@ export default function Categories(props: any) {
               <label htmlFor="title">Name</label>
               <InputText id="title" value={category.title} onChange={(e) => onInputChange(e, 'title')} required autoFocus className={classNames({ 'p-invalid': (submitted && !category.title) || categoryErrors.title.length })} />
               {submitted && !category.title && <small className="p-error">Name is required.</small>}
-              {categoryErrors.title && categoryErrors.title.map((error: string, index: number) => <small key={index} className="p-error">{error}</small>)}
+              {categoryErrors.title && categoryErrors.title.map((error: string, index: number) => <small key={index} className="p-error d-block">{error}</small>)}
             </div>
           </Dialog>
 
