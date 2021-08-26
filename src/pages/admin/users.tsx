@@ -4,7 +4,6 @@ import { GetServerSideProps } from 'next'
 import React from 'react'
 import { DataTable } from 'primereact/datatable'
 import { Column } from 'primereact/column'
-import Header from '../../components/header'
 import { ExtendedUser } from '../../types'
 
 // This gets called on every request
@@ -42,9 +41,7 @@ export default function Categories(props: any) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Header />
-
-      <main className="container">
+      <main className="container mb-3">
         <h1>Users</h1>
 
         <div className="card">

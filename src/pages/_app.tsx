@@ -1,11 +1,14 @@
 import '../styles/app.scss'
 import type { AppProps } from 'next/app'
 import { CartProvider } from '../context/cart'
+import Layout from '../components/layout'
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <CartProvider>
-      <Component {...pageProps} />
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
     </CartProvider>
   )
 }

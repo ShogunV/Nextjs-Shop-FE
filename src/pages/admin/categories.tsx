@@ -12,7 +12,6 @@ import { FileUpload } from 'primereact/fileupload';
 import { Toolbar } from 'primereact/toolbar';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
-import Header from '../../components/header'
 import { CartProduct, ProductCategory } from '../../types';
 
 type CategoryErrors = {
@@ -202,9 +201,7 @@ export default function Categories(props: any) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Header />
-
-      <main className="container">
+      <main className="container mb-3">
         <h1>Categories</h1>
 
         <div className="datatable-crud">

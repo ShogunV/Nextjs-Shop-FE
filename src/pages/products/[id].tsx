@@ -2,7 +2,6 @@ import Head from 'next/head'
 import Image from 'next/image'
 import api from '../../helpers/api'
 import { GetServerSideProps } from 'next'
-import Header from '../../components/header'
 import Link from 'next/link'
 import { useCartContext } from '../../context/cart'
 
@@ -35,9 +34,7 @@ export default function Home(props: any) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Header />
-
-      <main className="container">
+      <main className="container mb-3">
         <h1>Product</h1>
 
         {product ?

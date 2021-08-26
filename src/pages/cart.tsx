@@ -6,7 +6,6 @@ import React, { useRef } from 'react'
 import { useCartContext, useGetTotalPrice, useGetTotalQuantity } from '../context/cart'
 import router from 'next/router'
 import { CartProduct } from '../types'
-import Header from '../components/header'
 import { Toast } from 'primereact/toast'
 import { confirmDialog } from 'primereact/confirmdialog';
 import { useIsLoggedIn } from '../helpers/auth'
@@ -86,15 +85,13 @@ export default function Cart() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Header />
-
-      <main className="container">
+      <main className="container mb-3">
         <h1 className="text-center my-3">Cart</h1>
         {cart.length > 0 ?
           <>
             <div className="row mb-3">
               <div className="d-flex justify-content-end">
-                <button className="btn btn-sm btn-danger clearCart" onClick={clearCart}><i className="pi pi-trash"></i><span>Clear cart</span></button>
+                <button className="btn btn-sm btn-danger" onClick={clearCart}><i className="pi pi-trash me-1"></i><span>Clear cart</span></button>
               </div>
             </div>
             <div className="row">
@@ -120,9 +117,9 @@ export default function Cart() {
                         <th scope="row">#</th>
                         <td>{product.title}</td>
                         <td>
-                          <button className="btn btn-sm" onClick={() => addToCart(product)}>+</button>
+                          <button className="btn btn-sm px-1 mx-1" onClick={() => addToCart(product)}>+</button>
                           {product.quantity}
-                          <button className="btn btn-sm" onClick={() => removeOneFromCart(product)}>-</button>
+                          <button className="btn btn-sm px-1 mx-1" onClick={() => removeOneFromCart(product)}>-</button>
                           <button className="btn btn-sm btn-danger" onClick={() => removeFromCart(product)}><i className="pi pi-trash"></i></button>
                         </td >
                         <td>{(product.price).toFixed(2)}</td>

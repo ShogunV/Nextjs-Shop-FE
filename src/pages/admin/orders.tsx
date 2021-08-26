@@ -4,7 +4,6 @@ import { GetServerSideProps } from 'next'
 import React from 'react'
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { CartProduct, Order } from '../../types'
-import Header from '../../components/header'
 
 // This gets called on every request
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -45,9 +44,7 @@ export default function Orders(props: any) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Header />
-
-      <main className="container">
+      <main className="container mb-3">
         <h1>Orders</h1>
 
         <div className="card">

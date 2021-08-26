@@ -16,7 +16,6 @@ import { InputNumber, InputNumberValueChangeParams } from 'primereact/inputnumbe
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import Image from 'next/image'
-import Header from '../../components/header'
 import { CartProduct, ProductCategory } from '../../types'
 
 type ProductErrors = {
@@ -275,9 +274,7 @@ export default function Products(props: any) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Header />
-
-      <main className="container">
+      <main className="container mb-3">
         <h1>Products</h1>
 
         <div className="datatable-crud">

@@ -6,7 +6,6 @@ import { GetServerSideProps } from 'next'
 import React, { useEffect, useState } from 'react'
 import { useCartContext } from '../context/cart'
 import { Product } from '../types'
-import Header from '../components/header'
 
 // This gets called on every request
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -50,9 +49,7 @@ export default function Home(props: any) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Header />
-
-      <main className="container">
+      <main className="container mb-3">
         <div className="row mb-3 d-flex justify-content-end">
           <div className="col-lg-4 col-sm-6">
             <input id="search" type="text" className="form-control" name="search" placeholder="Search..." value={search} onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleSearch(e)} />
