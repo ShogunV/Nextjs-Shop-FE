@@ -16,6 +16,13 @@ export const useGetUserRole = () => {
   return "customer";
 };
 
+export const useGetUserEmail = () => {
+  if (typeof window === "undefined") {
+    return
+  }
+  return localStorage.getItem("userEmail");
+}
+
 export const logIn = ($user: User) => {
   localStorage.setItem("loggedIn", "true");
   localStorage.setItem("userEmail", $user.email);

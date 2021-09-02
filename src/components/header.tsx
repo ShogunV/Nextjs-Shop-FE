@@ -2,25 +2,20 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useGetTotalQuantity } from "../context/cart";
 import api from "../helpers/api";
-import { logOut, useGetUserRole, useIsLoggedIn } from "../helpers/auth";
+import { logOut, useGetUserEmail, useGetUserRole, useIsLoggedIn } from "../helpers/auth";
 import { ProductCategory } from "../types";
 
 export default function Header(props: any) {
   const [mounted, setMounted] = useState(false);
   const isLoggedIn: boolean = useIsLoggedIn();
   const [menuItems, setMenuItems] = useState([])
-  const [userEmail, setUserEmail] = useState<string>('')
+  const userEmail = useGetUserEmail();
   const cartTotal = useGetTotalQuantity()
   const [showMobileMenu, setShowMobileMenu] = useState(false)
-  const [showProfileDropdown, setShowProfileshowProfileDropdown] = useState(false)
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false)
 
   useEffect(() => {
     setMounted(true)
-    const email = localStorage.getItem('userEmail') || ''
-    setUserEmail(email)
-  }, [])
-
-  useEffect(() => {
     getMenuItems()
   }, [])
 
@@ -29,7 +24,10 @@ export default function Header(props: any) {
   }
 
   const handleLogOut = () => {
-    api.post('logout').then(res => logOut()).catch(e => console.log(e))
+    api.post('logout').then(res => {
+      setShowProfileDropdown(false)
+      logOut()
+    }).catch(e => console.log(e))
   }
 
   const MenuItems = () => {
@@ -67,7 +65,7 @@ export default function Header(props: any) {
     if (isLoggedIn && userEmail) {
       return (
         <li className="nav-item dropdown">
-          <a className="nav-link dropdown-toggle" onClick={() => setShowProfileshowProfileDropdown(state => !state)} id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <a className="nav-link dropdown-toggle" onClick={() => setShowProfileDropdown(state => !state)} id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             {userEmail}
           </a>
           <ul className={`dropdown-menu ${showProfileDropdown ? 'show' : ''}`} aria-labelledby="navbarDropdownMenuLink">
