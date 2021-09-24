@@ -35,7 +35,11 @@ export type Order = {
   data: CartProduct[]
 }
 
-export interface CartProduct extends Product {
+export type CartProduct = {
+  id: number;
+  title: string;
+  price: number;
+  discount: number;
   quantity: number;
 }
 
