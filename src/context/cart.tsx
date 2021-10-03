@@ -32,9 +32,7 @@ export function CartProvider({ children }: Props) {
       productInCart.quantity++
       return setCart(newCart)
     } else {
-      const { id, title, price, discount } = product
-      const cartProduct = { id, title, price, discount, quantity: 1 }
-      return setCart([...newCart, cartProduct])
+      return setCart([...newCart, product])
     }
   }
 
@@ -49,18 +47,12 @@ export function CartProvider({ children }: Props) {
       return setCart(newCart)
     }
     if (productInCart.quantity === 1) {
-      const [productInCart, ...rest] = newCart
-      return setCart(rest)
+      return setCart(newCart.filter(el => el.id !== productInCart.id))
     }
   }
 
   const removeFromCart = (product: CartProduct) => {
-    const newCart: Cart = [...cart]
-    const productInCart = newCart.find(cartProduct => cartProduct.id === product.id)
-    if (productInCart) {
-      const [productInCart, ...rest] = newCart
-      return setCart(rest)
-    }
+    return setCart(cart.filter(el => el.id !== product.id))
   }
 
   const clearCart = () => {

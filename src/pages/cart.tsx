@@ -60,7 +60,7 @@ export default function Cart() {
       acceptLabel: 'OK',
       rejectLabel: 'Cancel',
       accept: () => onAccept(),
-      reject: () => {}
+      reject: () => { }
     });
   };
 

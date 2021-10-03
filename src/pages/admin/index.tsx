@@ -16,7 +16,7 @@ import { InputNumber, InputNumberValueChangeParams } from 'primereact/inputnumbe
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import Image from 'next/image'
-import { CartProduct, ProductCategory } from '../../types'
+import { Product, ProductCategory } from '../../types'
 
 type ProductErrors = {
   title: string[];
@@ -55,7 +55,7 @@ export default function Products(props: any) {
   const allCategories = props.categories
   const fileUploadRef = useRef<FileUpload>(null)
 
-  let emptyProduct: CartProduct = {
+  let emptyProduct: Product = {
     id: 0,
     title: '',
     image: '',
@@ -64,7 +64,6 @@ export default function Products(props: any) {
     category_id: 0,
     price: 0,
     discount: 0,
-    quantity: 0,
   };
 
   const [productDialog, setProductDialog] = useState(false);
@@ -151,12 +150,12 @@ export default function Products(props: any) {
     }
   }
 
-  const editProduct = (product: CartProduct) => {
+  const editProduct = (product: Product) => {
     setProduct({ ...product });
     setProductDialog(true);
   }
 
-  const confirmDeleteProduct = (product: CartProduct) => {
+  const confirmDeleteProduct = (product: Product) => {
     setProduct(product);
     setDeleteProductDialog(true);
   }
@@ -212,19 +211,19 @@ export default function Products(props: any) {
     )
   }
 
-  const imageBodyTemplate = (rowData: CartProduct) => {
+  const imageBodyTemplate = (rowData: Product) => {
     return <Image src={`${backEndUrl}/storage/${rowData.image ? rowData.image : 'images/No_image_available.png'}`} width={120} height={120} layout='responsive' alt={rowData.title} className="product-image" />
   }
 
-  const priceBodyTemplate = (rowData: CartProduct) => {
+  const priceBodyTemplate = (rowData: Product) => {
     return formatCurrency(rowData.price);
   }
 
-  const discountBodyTemplate = (rowData: CartProduct) => {
+  const discountBodyTemplate = (rowData: Product) => {
     return rowData.discount + '%';
   }
 
-  const actionBodyTemplate = (rowData: CartProduct) => {
+  const actionBodyTemplate = (rowData: Product) => {
     return (
       <React.Fragment>
         <Button icon="pi pi-pencil" className="p-button-rounded p-button-success p-mr-2" onClick={() => editProduct(rowData)} />

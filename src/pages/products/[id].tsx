@@ -4,6 +4,7 @@ import api from '../../helpers/api'
 import { GetServerSideProps } from 'next'
 import Link from 'next/link'
 import { useCartContext } from '../../context/cart'
+import { CartProduct, Product } from '../../types'
 
 // This gets called on every request
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -23,7 +24,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 export default function Product(props: any) {
   const backEndUrl = process.env.NEXT_PUBLIC_BACK_END_URL
   const { addToCart } = useCartContext()
-  const product = props.product;
+  const product: Product = props.product;
   const discountPrice = product ? Math.round(product.price * (1 - (product.discount / 100))) : 0;
 
   return (
@@ -62,7 +63,7 @@ export default function Product(props: any) {
               </div>
               <div className="d-flex justify-content-between">
                 <Link href="/"><a className="btn btn-secondary">Back</a></Link>
-                <button type="button" className="btn btn-success cart" onClick={() => addToCart(product)}><i className="fa fa-shopping-cart" aria-hidden="true"></i><span className="glyphicon glyphicon-shopping-cart"></span>Add to cart</button>
+                <button type="button" className="btn btn-success cart" onClick={() => addToCart({ ...product, quantity: 1 } as CartProduct)}><i className="fa fa-shopping-cart" aria-hidden="true"></i><span className="glyphicon glyphicon-shopping-cart"></span>Add to cart</button>
               </div>
             </div>
           </div>
