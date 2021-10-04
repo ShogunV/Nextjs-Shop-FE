@@ -32,7 +32,9 @@ export function CartProvider({ children }: Props) {
       productInCart.quantity++
       return setCart(newCart)
     } else {
-      return setCart([...newCart, product])
+      const { id, title, price, discount } = product
+      const cartProduct = { id, title, price, discount, quantity: 1 }
+      return setCart([...newCart, cartProduct])
     }
   }
 

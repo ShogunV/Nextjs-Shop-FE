@@ -23,12 +23,12 @@ export const useGetUserEmail = () => {
   return localStorage.getItem("userEmail");
 }
 
-export const logIn = ($user: User) => {
+export const logIn = (user: User) => {
   localStorage.setItem("loggedIn", "true");
-  localStorage.setItem("userEmail", $user.email);
-  localStorage.setItem("userRole", $user.role ?? "customer");
+  localStorage.setItem("userEmail", user.email);
+  localStorage.setItem("userRole", user.role ?? "customer");
 
-  if ($user.role === "admin") {
+  if (user.role === "admin") {
     return router.push("/admin");
   }
   return router.push("/");
